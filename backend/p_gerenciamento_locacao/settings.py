@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     #local apps
     'a_users',
-    'a_api'
+    'a_api',
+    'a_brinquedos',
 ]
 
 MIDDLEWARE = [
