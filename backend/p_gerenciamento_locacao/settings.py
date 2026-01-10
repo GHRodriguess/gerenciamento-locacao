@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     #third party
     'rest_framework',
     'corsheaders',
-    
+    'drf_spectacular',
     #local apps
+    'a_users',
+    'a_api'
 ]
 
 MIDDLEWARE = [
@@ -62,7 +64,7 @@ ROOT_URLCONF = 'p_gerenciamento_locacao.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,6 +125,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated', 
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # Internationalization
@@ -136,8 +139,17 @@ USE_I18N = True
 
 USE_TZ = True
 
+AUTH_USER_MODEL = 'a_users.User'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Gerenciamento de Locação API',
+    'DESCRIPTION': 'Documentação da API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+    
