@@ -8,6 +8,7 @@ class Locacao(models.Model):
     valor_total = models.DecimalField(max_digits=10, decimal_places=2)
     cliente = models.ForeignKey('a_clientes.Cliente', blank=False, null=False, on_delete=models.CASCADE, related_name='locacoes')
     brinquedo = models.ManyToManyField('a_brinquedos.Brinquedo', through='ItemLocacao')
+    endereco = models.ForeignKey('a_locacoes.Endereco', on_delete=models.PROTECT, null=True, blank=True, related_name='locacoes')
 
     def clean(self):
         if self.data_montagem <= self.data_locacao:
@@ -44,3 +45,15 @@ class ItemLocacao(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+        
+class Endereco(models.Model):
+    rua = models.CharField(max_length=255)
+    numero = models.CharField(max_length=20)
+    complemento = models.CharField(max_length=100, blank=True, null=True)
+    bairro = models.CharField(max_length=100)
+    cidade = models.CharField(max_length=100)
+    estado = models.CharField(max_length=2)
+    cep = models.CharField(max_length=9)
+
+    def __str__(self):
+        return f"{self.rua}, {self.numero} - {self.bairro}, {self.cidade}/{self.estado}"

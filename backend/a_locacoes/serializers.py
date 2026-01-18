@@ -1,19 +1,24 @@
 from rest_framework import serializers
-from .models import Locacao, ItemLocacao
+from .models import Locacao, ItemLocacao, Endereco
 from django.db import transaction
 from a_brinquedos.models import Brinquedo
 from django.core.exceptions import ValidationError as DjangoValidationError
 from a_brinquedos.serializers import BrinquedoSerializer
+    
+class EnderecoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Endereco
+        fields = ['rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado', 'cep']
 
 class LocacaoSerializer(serializers.ModelSerializer):
-    brinquedos_ids  = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-        
-        
+    brinquedos_ids  = serializers.ListField(child=serializers.IntegerField(), write_only=True) 
     brinquedos = BrinquedoSerializer(source='brinquedo', many=True, read_only=True)
+    
+    endereco = EnderecoSerializer()
         
     class Meta:
         model = Locacao
-        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente', 'brinquedos_ids', 'brinquedos']
+        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente', 'brinquedos_ids', 'brinquedos', 'endereco']
         
     def create(self, validated_data):
         brinquedos_ids = validated_data.pop('brinquedo')

@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 User = get_user_model()
 
@@ -11,3 +13,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()
+        
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
