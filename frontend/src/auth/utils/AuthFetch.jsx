@@ -35,7 +35,9 @@ async function authFetch(url, options = {}) {
         ...options,
         headers: {
         ...(options.headers || {}),
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,        
+        "Content-Type": "application/json",
+
         },
     };
 
@@ -43,7 +45,6 @@ async function authFetch(url, options = {}) {
     if (response.status !== 401) {        
         return response;
     }
-    
 
     try {
         const newAccessToken = await refreshAccessToken();
@@ -52,12 +53,13 @@ async function authFetch(url, options = {}) {
             headers: {
                 ...(options.headers || {}),
                 Authorization: `Bearer ${newAccessToken}`,
+                "Content-Type": "application/json",
             },
-        });
+        })
     } catch (error) {
         console.error("Sessão expirada");
         window.location.href = "/login";
-        
+
         throw error;
     }
 }

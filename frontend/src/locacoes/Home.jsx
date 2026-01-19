@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X, Calendar as CalendarIcon, MapPin } from "lucide-react";
 import authFetch from "../auth/utils/AuthFetch"
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/NavBar";
 
 const Home = () => {
     const [username, setUserName] = useState("Carregando...");
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
+                const user = localStorage.getItem('username')
+                if (user) {
+                    setUserName(user)
+                    return
+                }
                 const response = await authFetch(
                     import.meta.env.VITE_API_URL + "/users/me/"
                 );
                 
                 if (response.ok) {
-                    const data = await response.json();                    
-                    setUserName(data.name || data.username || "Usuário");
+                    const data = await response.json();  
+                    console.log(data) 
+                    localStorage.setItem('username', data.first_name)                 
+                    setUserName(data.first_name || "Usuário");
                 }
             } catch (error) {
-                console.error("Erro ao buscar usuário:", error);
+                console.error("Erro ao buscar usuário, access_token expirado", error);
+
             }
         };
 
         fetchUserData();
-    }, []); 
+    }, [navigate]); 
 
     const locacoes = [
         { id: 1, nome: "Espaço Kids CPM", status: "Ocupado" },
@@ -35,43 +45,7 @@ const Home = () => {
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
 
-            <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-white tracking-tight">
-                        Gerenciamento de Locações
-                    </h1>
-
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
-                    >
-                        {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                    </button>
-                </div>
-
-                {isMenuOpen && (
-                    <div className="absolute top-16 left-0 w-full bg-slate-900 border-b border-slate-800 flex flex-col p-4 space-y-4 animate-in slide-in-from-top duration-300">
-                        <a
-                            href="#"
-                            className="py-2 px-4 hover:bg-slate-800 rounded-lg"
-                        >
-                            Perfil
-                        </a>
-                        <a
-                            href="#"
-                            className="py-2 px-4 hover:bg-slate-800 rounded-lg"
-                        >
-                            Configurações
-                        </a>
-                        <a
-                            href="#"
-                            className="py-2 px-4 text-red-400 hover:bg-slate-800 rounded-lg"
-                        >
-                            Sair
-                        </a>
-                    </div>
-                )}
-            </nav>
+            <Navbar setIsMenuOpen isMenuOpen/>
 
             <main className="p-4 max-w-lg mx-auto space-y-8">
                 <section>
