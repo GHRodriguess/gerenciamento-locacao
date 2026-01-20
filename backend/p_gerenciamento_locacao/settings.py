@@ -88,12 +88,7 @@ WSGI_APPLICATION = 'p_gerenciamento_locacao.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if DEBUG:
-    tmpPostgres = urlparse(os.getenv("DATABASE_URL_DEVELOPMENT"))
-else:
-    tmpPostgres = urlparse(os.getenv("DATABASE_URL_PRODUCTION"))
-
-if DEBUG:
+if not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -101,7 +96,7 @@ if DEBUG:
         }
     }
 else:
-    tmpPostgres = urlparse(os.getenv("DATABASE_URL_PRODUCTION"))
+    tmpPostgres = urlparse(os.getenv("DATABASE_URL_DEVELOPMENT"))
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
