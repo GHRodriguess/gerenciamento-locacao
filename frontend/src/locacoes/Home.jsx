@@ -59,6 +59,13 @@ const Home = () => {
         fetchLocacoesData();
     }, [navigate]);
 
+    const locacoesProximas = locacoes.filter((loc) => {        
+        return loc.data_devolucao
+            ? new Date(loc.data_devolucao) >= new Date()
+            : true;
+    });
+
+
     const openDetails = (loc) => {
         setSelectedLoc(loc);
         setIsDetailsOpen(true);
@@ -128,13 +135,13 @@ const Home = () => {
                             <MapPin size={20} className="text-blue-500" />{" "}
                             Locações próximas
                         </h3>
-                        <span className="text-xs text-blue-400 uppercase font-bold cursor-pointer hover:text-blue-300">
+                        <a href="/locacoes" className="text-xs text-blue-400 uppercase font-bold cursor-pointer hover:text-blue-300">
                             Ver todas
-                        </span>
+                        </a>
                     </div>
 
                     
-                    <Locacoes locacoes={locacoes} onSelect={openDetails} limit={2}/>
+                    <Locacoes locacoes={locacoesProximas} onSelect={openDetails} limit={2}/>
                     
                 </section>
 

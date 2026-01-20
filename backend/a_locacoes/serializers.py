@@ -23,20 +23,21 @@ class LocacaoSerializer(serializers.ModelSerializer):
         write_only=True
     )
     cliente = ClienteSerializer(read_only=True)
+    
         
     class Meta:
         model = Locacao
+        read_only_fields = ["criado_por"]
         fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco']
         
     def create(self, validated_data):
-        print(validated_data)
         brinquedos_ids = validated_data.pop('brinquedos_ids')
         endereco_data = validated_data.pop('endereco')
         
         try:
             with transaction.atomic():
-                endereco = Endereco.objects.create(**endereco_data)
-                locacao = Locacao.objects.create(endereco=endereco,**validated_data)
+                endereco = Endereco.objects.create(**endereco_data)                
+                locacao = Locacao.objects.create(endereco=endereco, **validated_data)
                 
                 for brinquedo_id in brinquedos_ids:
                     brinquedo = Brinquedo.objects.get(id=brinquedo_id)
@@ -55,3 +56,30 @@ class LocacaoSerializer(serializers.ModelSerializer):
         
 
         return locacao
+
+    def update(self, instance, validated_data):
+        endereco_data = validated_data.pop('endereco', None)
+        brinquedos_ids = validated_data.pop('brinquedos_ids', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if endereco_data:
+            endereco = instance.endereco
+            for attr, value in endereco_data.items():
+                setattr(endereco, attr, value)
+            endereco.save()
+
+        if brinquedos_ids is not None:
+            instance.itemlocacao_set.all().delete()
+
+            for brinquedo_id in brinquedos_ids:
+                brinquedo = Brinquedo.objects.get(id=brinquedo_id)
+                ItemLocacao.objects.create(
+                    locacao=instance,
+                    brinquedo=brinquedo
+                )
+
+        instance.save()
+        return instance
+            

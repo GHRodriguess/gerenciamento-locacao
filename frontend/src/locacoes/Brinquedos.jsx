@@ -61,7 +61,7 @@ const Brinquedos = () => {
 
             if (response.ok) {
                 setIsModalOpen(false);
-                setFormData({ tipo: "cama-elastica 3m", ativo: true });
+                setFormData({ tipo: "cama-elastica-2,49-metros", ativo: true });
                 fetchBrinquedos();
             }
         } catch (error) {

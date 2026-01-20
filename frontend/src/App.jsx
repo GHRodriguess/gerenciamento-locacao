@@ -5,6 +5,7 @@ import Home from "../src/locacoes/Home.jsx"
 import Colaboradores from "../src/locacoes/Colaboradores.jsx"
 import Brinquedos from "./locacoes/Brinquedos.jsx";
 import Clientes from "./locacoes/Clientes.jsx"
+import Locacoes from "./locacoes/Locacoes.jsx"
 
 const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
     {
         path: "/clientes",
         element: <Clientes/>
+    },
+    {
+        path: "/locacoes",
+        element: <Locacoes/>
     }
 
 ]);

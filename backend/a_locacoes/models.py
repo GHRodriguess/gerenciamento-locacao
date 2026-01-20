@@ -1,14 +1,16 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 class Locacao(models.Model):
     data_locacao = models.DateTimeField(auto_now_add=True)
     data_montagem = models.DateTimeField()
     data_devolucao = models.DateTimeField()
     valor_total = models.DecimalField(max_digits=10, decimal_places=2)
-    cliente = models.ForeignKey('a_clientes.Cliente', blank=False, null=False, on_delete=models.CASCADE, related_name='locacoes')
+    cliente = models.ForeignKey('a_clientes.Cliente', blank=False, null=False, on_delete=models.PROTECT, related_name='locacoes')
     brinquedo = models.ManyToManyField('a_brinquedos.Brinquedo', through='ItemLocacao')
     endereco = models.ForeignKey('a_locacoes.Endereco', on_delete=models.PROTECT, null=True, blank=True, related_name='locacoes')
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT, related_name='locacoes_criadas', null=True)
 
     def clean(self):
         if self.data_montagem <= self.data_locacao:
