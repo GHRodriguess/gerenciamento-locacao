@@ -49,8 +49,6 @@ const Colaboradores = () => {
                 ...formData,
                 password: generateRandomPassword(16),
             };
-
-            console.log(payload);
             const response = await authFetch(
                 import.meta.env.VITE_API_URL + "/users/",
                 {

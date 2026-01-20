@@ -3,6 +3,7 @@ import Login from "../src/auth/Login.jsx"
 import RedefinirSenha from "../src/auth/RedefinirSenha.jsx"
 import Home from "../src/locacoes/Home.jsx"
 import Colaboradores from "../src/locacoes/Colaboradores.jsx"
+import Brinquedos from "./locacoes/Brinquedos.jsx";
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
         path: "/colaboradores",
         element: <Colaboradores/>
     },
+    {
+        path: "/brinquedos",
+        element: <Brinquedos/>
+    }
 
 ]);
 

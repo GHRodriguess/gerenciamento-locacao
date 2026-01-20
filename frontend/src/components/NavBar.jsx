@@ -27,6 +27,12 @@ const Navbar = () => {
                         Página Inicial
                     </a>
                     <a
+                        href="/brinquedos"
+                        className="py-2 px-4 hover:bg-slate-800 rounded-lg"
+                    >
+                        Brinquedos
+                    </a>
+                    <a
                         href="#"
                         className="py-2 px-4 hover:bg-slate-800 rounded-lg"
                     >

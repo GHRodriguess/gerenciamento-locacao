@@ -36,7 +36,6 @@ export default function RedefinirSenha() {
                     }),
                 },
             );
-            console.log(response)
             if (!response.ok) {
                 throw new Error("Token inválido ou expirado");
             }
