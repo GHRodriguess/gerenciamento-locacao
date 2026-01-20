@@ -33,7 +33,7 @@ const Navbar = () => {
                         Brinquedos
                     </a>
                     <a
-                        href="#"
+                        href="/clientes"
                         className="py-2 px-4 hover:bg-slate-800 rounded-lg"
                     >
                         Clientes
