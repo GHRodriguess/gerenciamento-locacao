@@ -292,7 +292,7 @@ const Locacoes = () => {
                                             <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">
                                                 Cliente
                                             </p>
-                                            <h3 className="font-bold text-xl text-white  truncate max-w-50 group-hover:text-indigo-400 transition-colors">
+                                            <h3 className="font-bold text-xl text-white truncate max-w-50 group-hover:text-indigo-400 transition-colors">
                                                 {loc.cliente.nome}
                                             </h3>
                                         </div>

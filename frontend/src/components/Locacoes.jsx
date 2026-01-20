@@ -13,8 +13,9 @@ const Locacoes = ({ locacoes = [], onSelect, limit }) => {
                         className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-lg hover:border-indigo-500/50 transition-all cursor-pointer active:scale-95"
                     >
                         <div className="flex justify-between items-start">
-                            <h4 className="font-bold text-white flex gap-2 text-lg">
-                                <UserRound /> {loc.cliente.nome}
+                            <h4 className="font-bold text-white flex items-center gap-2 truncate max-w-50 text-lg">
+                                <UserRound size={20} className="shrink-0 text-white" />
+                                <span className="truncate">{loc.cliente.nome}</span>
                             </h4>
                             <span className="text-emerald-400 font-bold bg-emerald-400/10 px-3 py-1 rounded-lg text-sm">
                                 R$ {loc.valor_total}
