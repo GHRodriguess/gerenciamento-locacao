@@ -5,8 +5,8 @@ import {
     MapPin,
     Package,
     Clock,
-    Castle
-
+    Castle,
+    User
 } from "lucide-react";
 import authFetch from "../auth/utils/AuthFetch";
 import { useNavigate } from "react-router-dom";
@@ -340,7 +340,23 @@ const Home = () => {
                             </div>
                         </div>
 
-                        <div className="p-6">
+                        <div className="space-y-2 p-4 border-t border-slate-800">
+                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                <User size={14} /> Registro
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <div className="bg-slate-800/50 h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-indigo-400 border border-slate-700">
+                                    {selectedLoc.criado_por?.username?.charAt(0).toUpperCase() || "U"}
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400">
+                                        Criado por: <span className="text-white font-medium">{ selectedLoc.criado_por?.username || "Sistema"}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-2 pb-5">
                             <button
                                 onClick={() => setIsDetailsOpen(false)}
                                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all"

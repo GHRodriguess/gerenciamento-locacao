@@ -6,7 +6,9 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from a_brinquedos.serializers import BrinquedoSerializer
 from a_clientes.serializers import ClienteSerializer
 from a_clientes.models import Cliente
-    
+from a_users.serializers import UserSerializer
+
+
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Endereco
@@ -23,12 +25,13 @@ class LocacaoSerializer(serializers.ModelSerializer):
         write_only=True
     )
     cliente = ClienteSerializer(read_only=True)
+    criado_por = UserSerializer(read_only=True)
     
         
     class Meta:
         model = Locacao
         read_only_fields = ["criado_por"]
-        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco']
+        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco', "criado_por"]
         
     def create(self, validated_data):
         brinquedos_ids = validated_data.pop('brinquedos_ids')
