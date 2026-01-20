@@ -38,4 +38,3 @@ def rest_password(user):
 
     email.attach_alternative(html_content, "text/html")
     email.send()
-    print("Enviando email", user.email)

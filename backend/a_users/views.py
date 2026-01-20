@@ -43,8 +43,6 @@ class UserViewSet(viewsets.ModelViewSet):
                 {"detail": "Usuário inválido"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        print("UID:", uid)
-        print("Decoded:", user_id)
             
         if not PasswordResetTokenGenerator().check_token(user, token):
             return Response(

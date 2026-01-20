@@ -161,7 +161,6 @@ SPECTACULAR_SETTINGS = {
 
 
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
-print(CORS_ALLOWED_ORIGINS)
 #CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = list(default_headers)
 CORS_ALLOW_METHODS = list(default_methods)
