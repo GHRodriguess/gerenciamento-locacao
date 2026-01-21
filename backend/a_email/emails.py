@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 base_url_frontend = os.getenv("BASE_URL_FRONTEND")
 
-def rest_password(user):
+def reset_password(user):
     token = PasswordResetTokenGenerator().make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     
@@ -35,6 +35,6 @@ def rest_password(user):
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[user.email],
     )
-
+    print(user.email)
     email.attach_alternative(html_content, "text/html")
     email.send()

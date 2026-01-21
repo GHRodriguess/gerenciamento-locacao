@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/NavBar";
 import authFetch from "../auth/utils/AuthFetch";
 import { X } from "lucide-react";
+import Toast from "../components/Toast";
 
 const Clientes = () => {
     const [clientes, setClientes] = useState([]);
@@ -20,6 +21,11 @@ const Clientes = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [clientNameToDelete, setClientNameToDelete] = useState("");
     const [clientIdToDelete, setClientIdToDelete] = useState(null);
+    const [toast, setToast] = useState({isOpen: false, message: "", type: "sucess"})
+
+    const showToast = (message, type = "success") => {
+        setToast({ isOpen: true, message, type });
+    };
 
     const maskPhone = (value) => {
         if (!value) return "";
@@ -94,9 +100,13 @@ const Clientes = () => {
             if (response.ok) {
                 setIsModalOpen(false);
                 fetchClientes();
+                const mensagem = isEditing ? "Cliente editado com sucesso" : "Cliente criado com sucesso"
+                showToast(mensagem, "info")
             }
         } catch (error) {
             console.error("Erro na operação:", error);
+            const mensagem = isEditing ? "Erro ao editar cliente" : "Erro ao criar cliente"
+            showToast(mensagem, "error")
         }
     };
 
@@ -117,14 +127,15 @@ const Clientes = () => {
 
             if (response.ok) {
                 fetchClientes();
-                setIsDeleteModalOpen(false);
+                setIsDeleteModalOpen(false);                    
+                showToast("Usuário deletado com sucesso", "info")
                 return;
             }
 
             const data = await response.json();
 
             if (response.status === 409) {
-                setDeleteError(data.message);
+                setDeleteError(data.message);                
             }
         } catch (error) {
             console.error(error)
@@ -311,7 +322,8 @@ const Clientes = () => {
                             <div className="flex justify-end gap-3 mt-6">
                                 <button
                                     type="button"
-                                    onClick={() => setIsModalOpen(false)}
+                                    onClick={() =>  setIsModalOpen(false)                         
+                                    }
                                     className="px-4 py-2 text-slate-400"
                                 >
                                     Cancelar
@@ -345,7 +357,7 @@ const Clientes = () => {
                                 Sim, remover
                             </button>
                             <button
-                                onClick={() => setIsDeleteModalOpen(false)}
+                                onClick={() => {setIsDeleteModalOpen(false); setDeleteError("");}}
                                 className="w-full bg-slate-800 py-3 rounded-xl"
                             >
                                 Cancelar
@@ -359,6 +371,12 @@ const Clientes = () => {
                     </div>
                 </div>
             )}
+            <Toast 
+                isOpen={toast.isOpen} 
+                message={toast.message} 
+                type={toast.type} 
+                onClose={() => setToast({ ...toast, isOpen: false })} 
+            />
         </div>
     );
 };

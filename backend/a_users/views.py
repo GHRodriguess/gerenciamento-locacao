@@ -8,6 +8,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework.permissions import AllowAny
+from a_email import emails
 
 User = get_user_model()
 
@@ -23,6 +24,15 @@ class UserViewSet(viewsets.ModelViewSet):
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def send_email_reset_password(self, request, pk=None):
+        user = self.get_object()
+        emails.reset_password(user)
+        return Response(
+            {"detail": f"E-mail de redefinição enviado com sucesso para {user.email}"},
+            status=status.HTTP_200_OK
+        )
     
     @action(detail=False, methods=["post"], permission_classes=[AllowAny])
     def reset_password(self, request):

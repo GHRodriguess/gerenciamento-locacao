@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/NavBar";
 import authFetch from "../auth/utils/AuthFetch";
+import Toast from "../components/Toast";
 
 const Brinquedos = () => {
     const [brinquedos, setBrinquedos] = useState([]);
@@ -12,6 +13,11 @@ const Brinquedos = () => {
     const [formData, setFormData] = useState({ tipo: "cama-elastica-2,49-metros", ativo: true });
 
     const [dates, setDates] = useState({ inicio: "", fim: "" });
+    const [toast, setToast] = useState({isOpen: false, message: "", type: "sucess"})
+
+    const showToast = (message, type = "success") => {
+        setToast({ isOpen: true, message, type });
+    };
 
     const fetchBrinquedos = async (urlSuffix = "/brinquedos/") => {
         try {
@@ -63,9 +69,11 @@ const Brinquedos = () => {
                 setIsModalOpen(false);
                 setFormData({ tipo: "cama-elastica-2,49-metros", ativo: true });
                 fetchBrinquedos();
+                showToast("Brinquedo criado com sucesso", "info")
             }
         } catch (error) {
             console.error("Erro ao criar:", error);
+            showToast("Erro ao criar brinquedo", "error")
         }
     };
 
@@ -77,9 +85,11 @@ const Brinquedos = () => {
             if (response.ok) {
                 fetchBrinquedos();
                 setIsDeleteModalOpen(false);
+                showToast("Brinquedo deletado com sucesso", "info")
             }
         } catch (error) {
             console.error("Erro ao deletar:", error);
+            showToast("Erro ao deletar brinquedo", "error")
         }
     };
 

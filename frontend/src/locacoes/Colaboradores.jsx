@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/NavBar";
 import authFetch from "../auth/utils/AuthFetch";
+import Toast from "../components/Toast";
 
 const Colaboradores = () => {
     const [colaboradores, setColaboradores] = useState([]);
@@ -14,6 +15,12 @@ const Colaboradores = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [usernameToDelete, setUsernameToDelete] = useState(null);
     const [userId, setUseridToDelete] = useState(null);
+    const [toast, setToast] = useState({isOpen: false, message: "", type: "sucess"})
+
+    const showToast = (message, type = "success") => {
+        setToast({ isOpen: true, message, type });
+    };
+
     const fetchUsers = async () => {
         try {
             const response = await authFetch(
@@ -66,11 +73,13 @@ const Colaboradores = () => {
                     last_name: "",
                 });
                 fetchUsers();
+                showToast("Colaborador criado com sucesso", "info")
             } else {
                 const errorData = await response.json().catch();
                 console.error(errorData);
             }
         } catch (error) {
+            showToast("Erro ao criar colaborador", "error")
             console.error("Erro ao criar colaborador:", error);
         }
     };
@@ -92,11 +101,33 @@ const Colaboradores = () => {
             if (response.ok) {
                 fetchUsers();
                 setIsDeleteModalOpen(false);
+                showToast("Usuário deletado com sucesso", "info")
             }
         } catch (error) {
             console.error("Erro ao deletar:", error);
+            showToast("Erro ao deletar", "error")
         }
     };
+
+    const handleEmailResetPassword = async (userid) => {
+        try {
+
+            const response = await authFetch(
+                `${import.meta.env.VITE_API_URL}/users/${userid}/send_email_reset_password/`,
+                {
+                    method: "POST"
+                }
+            )
+            if (response.ok) {
+                showToast("E-mail de redefinição enviado!", "info")
+            }
+        }
+        catch (error) {
+            console.error(error)
+            showToast("Erro ao enviar o e-mail", "error")
+            throw(error)
+        }
+    }
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
@@ -118,36 +149,58 @@ const Colaboradores = () => {
                         colaboradores.map((user) => (
                             <div
                                 key={user.username}
-                                className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center"
+                                className="bg-slate-900 p-4 rounded-xl  border border-slate-800 flex justify-between items-center"
                             >
                                 <div>
-                                    <p className="font-semibold text-lg">
+                                    <p className="font-semibold truncate max-w-55 text-lg">
                                         {user.first_name} {user.last_name}
                                     </p>
                                     <p className="text-slate-400 text-sm">
                                         {user.email} | @{user.username}
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => openDeleteModal(user.username, user.id)}
-                                    className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                                    title="Excluir Colaborador"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-5 w-5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
+                                <div>
+                                    <button
+                                        onClick={() => handleEmailResetPassword(user.id)}
+                                        className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                        title="Enviar E-mail Redefinição de Senha para Colaborador"
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                        />
-                                    </svg>
-                                </button>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => openDeleteModal(user.username, user.id)}
+                                        className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                        title="Excluir Colaborador"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         ))
                     ) : (
@@ -303,6 +356,12 @@ const Colaboradores = () => {
                     </div>
                 </div>
             )}
+            <Toast 
+                isOpen={toast.isOpen} 
+                message={toast.message} 
+                type={toast.type} 
+                onClose={() => setToast({ ...toast, isOpen: false })} 
+            />
         </div>
     );
 };

@@ -176,7 +176,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1)
 }
 
-if DEBUG:
+EMAIL_TESTE = False
+
+if DEBUG and EMAIL_TESTE:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = 'email_teste@teste.com'
 else:    
