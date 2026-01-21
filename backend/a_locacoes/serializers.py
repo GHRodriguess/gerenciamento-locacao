@@ -12,7 +12,7 @@ from a_users.serializers import UserSerializer
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Endereco
-        fields = ['rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado', 'cep']
+        fields = ['rua', 'numero', 'cidade']
 
 class LocacaoSerializer(serializers.ModelSerializer):
     brinquedos_ids  = serializers.ListField(child=serializers.IntegerField(), write_only=True) 
