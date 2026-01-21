@@ -52,11 +52,7 @@ const Locacoes = () => {
         endereco: {
             rua: "",
             numero: "",
-            complemento: "",
-            bairro: "",
             cidade: "",
-            estado: "",
-            cep: "",
         },
     };
 
@@ -345,7 +341,7 @@ const Locacoes = () => {
                                                     Local
                                                 </p>
                                                 <p className="text-slate-300">
-                                                    {loc.endereco?.bairro ||
+                                                    {loc.endereco?.rua ||
                                                         "N/A"}
                                                     ,{" "}
                                                     {loc.endereco?.cidade ||
@@ -757,24 +753,11 @@ const Locacoes = () => {
                                             Onde será montado?
                                         </h3>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-4 text-white">
-                                        <input
-                                            placeholder="CEP"
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500"
-                                            value={formData.endereco.cep}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    endereco: {
-                                                        ...formData.endereco,
-                                                        cep: e.target.value,
-                                                    },
-                                                })
-                                            }
-                                        />
+                                    <div className="flex flex-col gap-4 text-white">
+                                        
                                         <input
                                             placeholder="Rua"
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500 col-span-2"
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500"
                                             value={formData.endereco.rua}
                                             onChange={(e) =>
                                                 setFormData({
@@ -800,20 +783,7 @@ const Locacoes = () => {
                                                 })
                                             }
                                         />
-                                        <input
-                                            placeholder="Bairro"
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500 col-span-2"
-                                            value={formData.endereco.bairro}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    endereco: {
-                                                        ...formData.endereco,
-                                                        bairro: e.target.value,
-                                                    },
-                                                })
-                                            }
-                                        />
+                                        
                                         <input
                                             placeholder="Cidade"
                                             className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500 col-span-2"
@@ -828,21 +798,7 @@ const Locacoes = () => {
                                                 })
                                             }
                                         />
-                                        <input
-                                            placeholder="UF"
-                                            maxLength="2"
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500 text-center uppercase"
-                                            value={formData.endereco.estado}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    endereco: {
-                                                        ...formData.endereco,
-                                                        estado: e.target.value,
-                                                    },
-                                                })
-                                            }
-                                        />
+                                        
                                     </div>
                                 </div>
                             )}
@@ -890,7 +846,7 @@ const Locacoes = () => {
                                             </span>
                                             <span className="text-right text-xs">
                                                 {formData.endereco.rua},{" "}
-                                                {formData.endereco.numero}
+                                                {formData.endereco.numero} 
                                             </span>
                                         </div>
                                         <div>
