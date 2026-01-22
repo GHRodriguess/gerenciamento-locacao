@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/NavBar";
 import Locacoes from "../components/Locacoes";
 
+
 const Home = () => {
     const [username, setUserName] = useState("Carregando...");
     const [locacoes, setLocacoes] = useState([]);

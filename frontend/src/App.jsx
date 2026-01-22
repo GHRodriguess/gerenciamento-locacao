@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 import Login from "../src/auth/Login.jsx"
+import Logout from "../src/auth/Logout.jsx"
 import RedefinirSenha from "../src/auth/RedefinirSenha.jsx"
 import Home from "../src/locacoes/Home.jsx"
 import Colaboradores from "../src/locacoes/Colaboradores.jsx"
@@ -11,6 +12,10 @@ const router = createBrowserRouter([
     {
         path: "/login",
         element: <Login />
+    },
+    {
+        path: "/logout",
+        element: <Logout/>
     },
     {
         path: "/redefinir-senha/:uid/:token",

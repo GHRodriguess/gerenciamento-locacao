@@ -46,14 +46,14 @@ const Navbar = () => {
                         Clientes
                     </a>
                     <a
-                        href="colaboradores"
+                        href="/colaboradores"
                         className="py-2 px-4 hover:bg-slate-800 rounded-lg"
                     >
                         Colaboradores
                     </a>
 
                     <a
-                        href="#"
+                        href="/logout"
                         className="py-2 px-4 text-red-400 hover:bg-slate-800 rounded-lg"
                     >
                         Sair
