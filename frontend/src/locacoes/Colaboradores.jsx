@@ -152,10 +152,10 @@ const Colaboradores = () => {
                                 className="bg-slate-900 p-4 rounded-xl  border border-slate-800 flex justify-between items-center"
                             >
                                 <div>
-                                    <p className="font-semibold truncate max-w-55 text-lg">
+                                    <p className="font-semibold truncate max-w-60 text-lg">
                                         {user.first_name} {user.last_name}
                                     </p>
-                                    <p className="text-slate-400 text-sm">
+                                    <p className="text-slate-400 wrap-normal max-w-60 text-sm">
                                         {user.email} | @{user.username}
                                     </p>
                                 </div>
