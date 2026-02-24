@@ -72,7 +72,7 @@ const Home = () => {
         setIsDetailsOpen(true);
     };
 
-    const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)); 
+    const [currentDate, setCurrentDate] = useState(new Date()); 
     const [isDayModalOpen, setIsDayModalOpen] = useState(false);
     const [locacoesDoDia, setLocacoesDoDia] = useState([]);
 
@@ -103,10 +103,20 @@ const Home = () => {
         if (!dia) return;
         
         const filtradas = locacoes.filter(loc => {
-            const d = new Date(loc.data_montagem);
-            return d.getDate() === dia && 
-                d.getMonth() === currentDate.getMonth() && 
-                d.getFullYear() === currentDate.getFullYear();
+            const dMontagem = new Date(loc.data_montagem);
+            const dDesmontagem = new Date(loc.data_devolucao)
+            return (
+            (
+                dMontagem.getDate() === dia &&
+                dMontagem.getMonth() === currentDate.getMonth() &&
+                dMontagem.getFullYear() === currentDate.getFullYear()
+            ) ||
+            (
+                dDesmontagem.getDate() === dia &&
+                dDesmontagem.getMonth() === currentDate.getMonth() &&
+                dDesmontagem.getFullYear() === currentDate.getFullYear()
+            )
+        );
         });
 
         setLocacoesDoDia(filtradas);
@@ -173,10 +183,15 @@ const Home = () => {
                             {generateCalendarDays().map((dia, i) => {
                                 if (dia === null) return <div key={`empty-${i}`} className="p-3"></div>;
 
-                                const possuiEvento = locacoes?.some(loc => {
+                                const possuiMontagem = locacoes?.some(loc => {
                                     const d = new Date(loc.data_montagem);
                                     return d.getDate() === dia && d.getMonth() === currentDate.getMonth() && d.getFullYear() === currentDate.getFullYear();
                                 });
+
+                                const possuiDesmontagem = locacoes?.some(loc => {
+                                    const d = new Date(loc.data_devolucao);
+                                    return d.getDate() === dia && d.getMonth() === currentDate.getMonth() && d.getFullYear() === currentDate.getFullYear();
+                                })
 
                                 const isHoje = new Date().getDate() === dia && new Date().getMonth() === currentDate.getMonth();
 
@@ -186,13 +201,41 @@ const Home = () => {
                                         onClick={() => handleDiaClick(dia)}
                                         className={`py-3 rounded-xl text-sm transition-all cursor-pointer relative
                                             ${isHoje ? "bg-blue-600 text-white font-bold" : "hover:bg-slate-800 text-slate-300"}
-                                            ${possuiEvento && !isHoje ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" : ""}
+                                            
+                                            ${
+                                                possuiMontagem && !isHoje
+                                                    ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30"
+                                                    : ""
+                                            }
+
+                                            ${
+                                                possuiDesmontagem && !isHoje
+                                                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                                    : ""
+                                            }
                                         `}
                                     >
                                         {dia}
-                                        {possuiEvento && (
-                                            <span className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${isHoje ? 'bg-white' : 'bg-indigo-500'}`}></span>
-                                        )}
+
+                                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+                                            
+                                            {possuiMontagem && (
+                                                <span
+                                                    className={`w-1.5 h-1.5 rounded-full ${
+                                                        isHoje ? "bg-white" : "bg-indigo-500"
+                                                    }`}
+                                                />
+                                            )}
+
+                                            {possuiDesmontagem && (
+                                                <span
+                                                    className={`w-1.5 h-1.5 rounded-full ${
+                                                        isHoje ? "bg-white" : "bg-red-500"
+                                                    }`}
+                                                />
+                                            )}
+
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -388,8 +431,11 @@ const Home = () => {
                                     >
                                         <p className="font-bold text-sm">Cliente {loc.cliente.nome}</p>
                                         <p className="text-xs text-slate-400 truncate">{loc.endereco.rua}, {loc.endereco.numero}</p>
-                                        <div className="flex justify-between mt-2 text-[10px] font-bold text-indigo-400">
-                                            <span>Montagem: {new Date(loc.data_montagem).getHours()}h</span>
+                                        <div className="flex items-center justify-between mt-2 text-[10px] font-bold ">
+                                            <div className="flex flex-col">
+                                                <span className="text-indigo-400">Montagem: {new Date(loc.data_montagem).toLocaleString('pt-BR', { day: `2-digit`, month: `2-digit`, year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span className="text-red-500">Desmontagem: {new Date(loc.data_devolucao).toLocaleString('pt-BR', { day: `2-digit`, month: `2-digit`, year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
                                             <span>R$ {loc.valor_total}</span>
                                         </div>
                                     </div>
