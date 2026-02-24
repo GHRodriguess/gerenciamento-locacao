@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("")
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
@@ -23,6 +24,12 @@ const Login = () => {
         const data = await response.json();
 
         if (!response.ok) {
+            if (data.detail === "No active account found with the given credentials"){
+                setError("Usuário ou senha incorretos")
+            }
+            else {
+                setError("Erro desconhecido")
+            }
             console.error("Erro no login:", data)
             return
         } 
@@ -92,7 +99,30 @@ const Login = () => {
                     >
                         Entrar
                     </button>
+                        {error && (
+                        <div className="flex justify-center mt-4">
+                            <div className="flex items-center gap-2 bg-red-500/15 border border-red-500 text-red-400 px-4 py-3 rounded-lg shadow-md backdrop-blur-sm">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                fillRule="evenodd"
+                                d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-8-4a1 1 0 00-.993.883L9 7v3a1 1 0 001.993.117L11 10V7a1 1 0 00-1-1zm0 8a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                                clipRule="evenodd"
+                                />
+                            </svg>
+
+                            <span className="text-sm font-medium">
+                                {error}
+                            </span>
+                            </div>
+                        </div>
+                        )}
                 </form>
+
             </div>
         </div>
     );

@@ -200,16 +200,16 @@ const Home = () => {
                                         key={i}
                                         onClick={() => handleDiaClick(dia)}
                                         className={`py-3 rounded-xl text-sm transition-all cursor-pointer relative
-                                            ${isHoje ? "bg-blue-600 text-white font-bold" : "hover:bg-slate-800 text-slate-300"}
+                                            ${isHoje ? "border-blue-500/70 bg-blue-500/20 border text-white font-bold" : "hover:bg-slate-800 text-slate-300"}
                                             
                                             ${
                                                 possuiMontagem && !isHoje
-                                                    ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30"
+                                                    ? "bg-indigo-500/30 text-indigo-400 border border-indigo-500/30"
                                                     : ""
                                             }
 
                                             ${
-                                                possuiDesmontagem && !isHoje
+                                                possuiDesmontagem && !possuiMontagem && !isHoje
                                                     ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                                     : ""
                                             }
@@ -221,17 +221,13 @@ const Home = () => {
                                             
                                             {possuiMontagem && (
                                                 <span
-                                                    className={`w-1.5 h-1.5 rounded-full ${
-                                                        isHoje ? "bg-white" : "bg-indigo-500"
-                                                    }`}
+                                                    className={`w-1.5 h-1.5 rounded-full bg-indigo-500`}
                                                 />
                                             )}
 
                                             {possuiDesmontagem && (
                                                 <span
-                                                    className={`w-1.5 h-1.5 rounded-full ${
-                                                        isHoje ? "bg-white" : "bg-red-500"
-                                                    }`}
+                                                    className={`w-1.5 h-1.5 rounded-full  bg-red-500 `}
                                                 />
                                             )}
 
@@ -430,7 +426,8 @@ const Home = () => {
                                         className="p-3 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-indigo-500 transition-colors cursor-pointer"
                                     >
                                         <p className="font-bold text-sm">Cliente {loc.cliente.nome}</p>
-                                        <p className="text-xs text-slate-400 truncate">{loc.endereco.rua}, {loc.endereco.numero}</p>
+                                        <p className="text-xs text-slate-400 truncate">{loc.endereco.rua}, {loc.endereco.numero} - {loc.endereco.cidade}</p>
+
                                         <div className="flex items-center justify-between mt-2 text-[10px] font-bold ">
                                             <div className="flex flex-col">
                                                 <span className="text-indigo-400">Montagem: {new Date(loc.data_montagem).toLocaleString('pt-BR', { day: `2-digit`, month: `2-digit`, year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
