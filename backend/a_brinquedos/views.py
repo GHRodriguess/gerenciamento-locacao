@@ -52,11 +52,16 @@ class BrinquedoViewSet(viewsets.ModelViewSet):
         inicio = request.query_params.get('inicio')
         fim = request.query_params.get('fim')
 
-        brinquedos = Brinquedo.objects.filter(ativo=True).exclude(
+        brinquedos_indisponiveis = Brinquedo.objects.filter(
             itemlocacao__locacao__data_montagem__lt=fim,
-            itemlocacao__locacao__data_devolucao__gt=inicio,
-            
-        ).distinct()
+            itemlocacao__locacao__data_devolucao__gt=inicio
+        )
+        
+        brinquedos = Brinquedo.objects.filter(
+            ativo=True
+        ).exclude(
+            id__in=brinquedos_indisponiveis.values_list('id', flat=True)
+        )
 
         serializer = self.get_serializer(brinquedos, many=True)
         return Response(serializer.data)
