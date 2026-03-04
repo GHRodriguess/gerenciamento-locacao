@@ -68,8 +68,15 @@ const Locacoes = () => {
             const resCli = await authFetch(API_URL + "/clientes/").catch(
                 () => ({ ok: false }),
             );
+            
+            if (resLoc.ok) {
+                const data = await resLoc.json()
 
-            if (resLoc.ok) setLocacoes(await resLoc.json());
+                const ordenado = data.sort((a, b) => 
+                    new Date(a.data_montagem) - new Date(b.data_montagem))
+                setLocacoes(ordenado)
+
+            };
             if (resCli.ok) setClientes(await resCli.json());
 
         } catch (error) {
