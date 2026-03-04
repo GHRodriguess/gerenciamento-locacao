@@ -35,13 +35,15 @@ class ItemLocacao(models.Model):
     def clean(self):
         conflito = ItemLocacao.objects.filter(
             brinquedo=self.brinquedo,
-            locacao__data_locacao__lt=self.locacao.data_devolucao,
+            locacao__data_montagem__lt=self.locacao.data_devolucao,
             locacao__data_devolucao__gt=self.locacao.data_montagem
-        ).exclude(locacao=self.locacao)
+        ).exclude(
+            locacao=self.locacao
+        )
 
         if conflito.exists():
             raise ValidationError(
-                f"O brinquedo '{self.brinquedo.tipo}' já está alugado."
+                f"O brinquedo '{self.brinquedo.tipo}' já está alugado nesse período."
             )
 
     def save(self, *args, **kwargs):
