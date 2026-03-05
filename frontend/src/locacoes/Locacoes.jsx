@@ -17,6 +17,7 @@ import {
     LayoutList,
     History,
     AlertCircle,
+    RotateCcw,
 } from "lucide-react";
 import authFetch from "../auth/utils/AuthFetch";
 import Navbar from "../components/NavBar";
@@ -62,7 +63,7 @@ const Locacoes = () => {
 
     const fetchData = async () => {
         try {
-            const resLoc = await authFetch(API_URL + "/locacoes/").catch(
+            const resLoc = await authFetch(API_URL + "/locacoes/todas").catch(
                 () => ({ ok: false }),
             );
             const resCli = await authFetch(API_URL + "/clientes/").catch(
@@ -129,11 +130,29 @@ const Locacoes = () => {
     }, [step]);
 
     const locacoesExibidas = locacoes.filter((loc) => {
-        if (view === "todas") return true;
-        return loc.data_devolucao
-            ? new Date(loc.data_devolucao) >= new Date()
-            : true;
+        if (view === "canceladas") {
+            return loc.cancelada === true;
+        }
+
+        if (loc.cancelada === true) {
+            return false;
+        }
+
+        if (view === "ativas") {
+            return true; 
+        }
+
+        if (view === "futuras") {
+            const dataDevolucao = loc.data_devolucao ? new Date(loc.data_devolucao) : null;
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            return dataDevolucao && dataDevolucao >= hoje;
+        }
+
+        return true; 
     });
+        
 
     const handleOpenModal = (locacao = null) => {
         setErrorMsg("");
@@ -252,31 +271,89 @@ const Locacoes = () => {
         c.nome.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
+    const TabButton = ({ active, onClick, icon, label }) => (
+    <button
+        onClick={onClick}
+        className={`
+        flex flex-1 items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold
+        transition-all duration-300 ease-in-out
+        relative z-10 /* Mantém o conteúdo acima do indicador */
+        ${active 
+            ? "text-white" 
+            : "text-slate-400 hover:text-slate-200"}
+        `}
+    >
+        {icon}
+        <span>{label}</span>
+    </button>
+    );
+
+    const indicatorPosition = {
+        futuras: '0%',
+        ativas: '33.33%',
+        canceladas: '66.66%',
+    };
+
+    const handleRestore = async (id) => {
+        try {
+            
+            const response = await authFetch(API_URL + `/locacoes/${id}/restaurar/`, {
+                method: 'PATCH',
+                
+            });
+
+            if (response.ok) {                
+                fetchData();
+                
+            } 
+        } catch (error) {
+            console.error("Erro na requisição:", error);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
             <Navbar setIsMenuOpen isMenuOpen />
             <main className="p-4 max-w-5xl mx-auto space-y-6">                
                 <div className="flex flex-col md:flex-row justify-items-start items-start md:items-start gap-4 border-b border-slate-800 pb-6">
-                    <div>
-                        
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setView("futuras")}
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${view === "futuras" ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20" : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800"}`}
-                            >
-                                <Calendar size={14} /> Próximas
-                            </button>
-                            <button
-                                onClick={() => setView("todas")}
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${view === "todas" ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20" : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800"}`}
-                            >
-                                <History size={14} /> Histórico Geral
-                            </button>
+                    <div className="flex flex-col items-center w-full max-w-md mx-auto ">
+
+                        <div className="relative flex p-1 bg-slate-900/50 border border-slate-800 rounded-xl backdrop-blur-sm w-full">
+
+                            <div
+                            className="absolute top-1 bottom-1 left-1 rounded-lg bg-indigo-600 shadow-md shadow-indigo-500/20 transition-all duration-300 ease-in-out z-0"
+                            style={{
+                                width: 'calc(33.33% - 8px)',
+                                left: `calc(${indicatorPosition[view]} + 4px)`,
+                            }}
+                            />
+
+                            <TabButton 
+                            active={view === "futuras"} 
+                            onClick={() => setView("futuras")}
+                            icon={<Calendar size={14} />}
+                            label="Próximas"
+                            />
+
+                            <TabButton 
+                            active={view === "ativas"} 
+                            onClick={() => setView("ativas")}
+                            icon={<History size={14} />}
+                            label="Histórico"
+                            />
+
+                            <TabButton 
+                            active={view === "canceladas"} 
+                            onClick={() => setView("canceladas")}
+                            icon={<Trash2 size={14} />}
+                            label="Canceladas"
+                            />
+                            
                         </div>
-                    </div>
+                        </div>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-xl shadow-indigo-600/20 active:scale-95"
+                        className="bg-indigo-600  w-full hover:bg-indigo-700 justify-center text-white px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-xl shadow-indigo-600/20 active:scale-95"
                     >
                         <Plus size={20} /> Nova Locação
                     </button>
@@ -387,21 +464,34 @@ const Locacoes = () => {
                                     </div>
                                 </div>
                                 <div className="bg-slate-950/50 p-4 flex md:flex-col justify-center gap-3 border-t md:border-t-0 md:border-l border-slate-800 w-full md:w-20">
-                                    <button
-                                        onClick={() => handleOpenModal(loc)}
-                                        className="flex-1 md:flex-none p-3 hover:bg-indigo-500/20 text-indigo-400 rounded-2xl transition-all flex justify-center"
-                                    >
-                                        <Edit size={20} />
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setLocacaoIdToDelete(loc.id);
-                                            setIsDeleteModalOpen(true);
-                                        }}
-                                        className="flex-1 md:flex-none p-3 hover:bg-red-500/20 text-red-500 rounded-2xl transition-all flex justify-center"
-                                    >
-                                        <Trash2 size={20} />
-                                    </button>
+                                    {view === "canceladas" ? (
+                                        <button
+                                            onClick={() => handleRestore(loc.id)}
+                                            className="flex-1 md:flex-none p-3 hover:bg-green-500/20 text-green-500 rounded-2xl transition-all flex justify-center"
+                                            title="Restaurar locação"
+                                        >
+                                            <RotateCcw size={20} />
+                                        </button>
+                                    ) : (
+                                        <>
+                                        <button
+                                            onClick={() => handleOpenModal(loc)}
+                                            className="flex-1 md:flex-none p-3 hover:bg-indigo-500/20 text-indigo-400 rounded-2xl transition-all flex justify-center"
+                                        >
+                                            <Edit size={20} />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setLocacaoIdToDelete(loc.id);
+                                                setIsDeleteModalOpen(true);
+                                            }}
+                                            className="flex-1 md:flex-none p-3 hover:bg-red-500/20 text-red-500 rounded-2xl transition-all flex justify-center"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                        </>
+                                    )}
+                                    
                                 </div>
                             </div>
                         ))

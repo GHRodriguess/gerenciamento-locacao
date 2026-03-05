@@ -53,6 +53,7 @@ class BrinquedoViewSet(viewsets.ModelViewSet):
         fim = request.query_params.get('fim')
 
         brinquedos_indisponiveis = Brinquedo.objects.filter(
+            itemlocacao__locacao__cancelada=False,
             itemlocacao__locacao__data_montagem__lt=fim,
             itemlocacao__locacao__data_devolucao__gt=inicio
         )

@@ -31,7 +31,7 @@ class LocacaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Locacao
         read_only_fields = ["criado_por"]
-        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco', "criado_por"]
+        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco', "criado_por", "cancelada"]
         
     def create(self, validated_data):
         brinquedos_ids = validated_data.pop('brinquedos_ids')

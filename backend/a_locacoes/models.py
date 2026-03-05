@@ -11,6 +11,11 @@ class Locacao(models.Model):
     brinquedo = models.ManyToManyField('a_brinquedos.Brinquedo', through='ItemLocacao')
     endereco = models.ForeignKey('a_locacoes.Endereco', on_delete=models.PROTECT, null=True, blank=True, related_name='locacoes')
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT, related_name='locacoes_criadas', null=True)
+    cancelada = models.BooleanField(default=False)
+    
+    def delete(self, *args, **kwargs): 
+        self.cancelada = True
+        self.save()
 
     def clean(self):
         if self.data_montagem <= self.data_locacao:
@@ -35,6 +40,7 @@ class ItemLocacao(models.Model):
     def clean(self):
         conflito = ItemLocacao.objects.filter(
             brinquedo=self.brinquedo,
+            locacao__cancelada=False,
             locacao__data_montagem__lt=self.locacao.data_devolucao,
             locacao__data_devolucao__gt=self.locacao.data_montagem
         ).exclude(
