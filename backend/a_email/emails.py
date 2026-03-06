@@ -35,6 +35,5 @@ def reset_password(user):
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[user.email],
     )
-    print(user.email)
     email.attach_alternative(html_content, "text/html")
     email.send()
