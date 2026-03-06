@@ -28,7 +28,7 @@ const Colaboradores = () => {
             );
             if (response.ok) {
                 const data = await response.json();
-                setColaboradores(data);
+                setColaboradores(data);                
             }
         } catch (error) {
             console.error("Erro ao buscar usuários:", error);
@@ -111,7 +111,7 @@ const Colaboradores = () => {
 
     const handleEmailResetPassword = async (userid) => {
         try {
-
+            
             const response = await authFetch(
                 `${import.meta.env.VITE_API_URL}/users/${userid}/send_email_reset_password/`,
                 {
@@ -147,10 +147,12 @@ const Colaboradores = () => {
                 <div className="grid gap-4">
                     {colaboradores.length > 0 ? (
                         colaboradores.map((user) => (
+                            
                             <div
                                 key={user.username}
                                 className="bg-slate-900 p-4 rounded-xl  border border-slate-800 flex justify-between items-center"
                             >
+                                
                                 <div>
                                     <p className="font-semibold truncate max-w-60 text-lg">
                                         {user.first_name} {user.last_name}

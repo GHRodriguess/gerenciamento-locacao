@@ -276,7 +276,7 @@ const Locacoes = () => {
         onClick={onClick}
         className={`
         flex flex-1 items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold
-        transition-all duration-300 ease-in-out
+        transition-all duration-300 ease-in-out h-full
         relative z-10 /* Mantém o conteúdo acima do indicador */
         ${active 
             ? "text-white" 
@@ -316,9 +316,9 @@ const Locacoes = () => {
             <Navbar setIsMenuOpen isMenuOpen />
             <main className="p-4 max-w-5xl mx-auto space-y-6">                
                 <div className="flex flex-col md:flex-row justify-items-start items-start md:items-start gap-4 border-b border-slate-800 pb-6">
-                    <div className="flex flex-col items-center w-full max-w-md mx-auto ">
+                    <div className="flex flex-col items-center w-full max-w-md mx-auto h-full">
 
-                        <div className="relative flex p-1 bg-slate-900/50 border border-slate-800 rounded-xl backdrop-blur-sm w-full">
+                        <div className="relative flex p-2 bg-slate-900/50 h-full border border-slate-800 rounded-xl backdrop-blur-sm w-full">
 
                             <div
                             className="absolute top-1 bottom-1 left-1 rounded-lg bg-indigo-600 shadow-md shadow-indigo-500/20 transition-all duration-300 ease-in-out z-0"
