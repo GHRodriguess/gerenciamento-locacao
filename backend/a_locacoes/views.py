@@ -9,7 +9,7 @@ class LocacaoViewSet(viewsets.ModelViewSet):
     serializer_class = LocacaoSerializer
     
     def get_queryset(self):
-        return Locacao.objects.filter(cancelada=False)
+        return Locacao.objects.filter(cancelada=False).order_by('data_montagem')
 
     def perform_create(self, serializer):
         serializer.save(criado_por=self.request.user)

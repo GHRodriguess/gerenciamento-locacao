@@ -854,6 +854,7 @@ const Locacoes = () => {
                                         
                                         <input
                                             placeholder="Rua"
+                                            required
                                             className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500"
                                             value={formData.endereco.rua}
                                             onChange={(e) =>
@@ -869,6 +870,7 @@ const Locacoes = () => {
                                         <input
                                             placeholder="Nº"
                                             className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500"
+                                            required
                                             value={formData.endereco.numero}
                                             onChange={(e) =>
                                                 setFormData({
@@ -883,6 +885,7 @@ const Locacoes = () => {
                                         
                                         <input
                                             placeholder="Cidade"
+                                            required
                                             className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500 col-span-2"
                                             value={formData.endereco.cidade}
                                             onChange={(e) =>
@@ -1016,7 +1019,12 @@ const Locacoes = () => {
                                         (step === 1 && !formData.cliente_id || !formData.valor_total) ||
                                         (step === 2 &&
                                             (!formData.data_montagem ||
-                                                !formData.data_devolucao))
+                                                !formData.data_devolucao)) || 
+                                        (step === 3 && formData.brinquedos_ids.length === 0) ||
+                                        (step === 4 &&
+                                            (!formData.endereco.rua ||
+                                            !formData.endereco.numero ||
+                                            !formData.endereco.cidade))
                                     }
                                     className="flex-2 bg-indigo-600 hover:bg-indigo-700 px-12 py-4 rounded-2xl font-black disabled:opacity-30 disabled:cursor-not-allowed transition-all text-white shadow-lg shadow-indigo-600/20"
                                 >
