@@ -19,12 +19,10 @@ import {
     AlertCircle,
     RotateCcw,
 } from "lucide-react";
-import authFetch from "../auth/utils/AuthFetch";
+import authFetch from "../utils/AuthFetch";
 import Navbar from "../components/NavBar";
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-
 
 const Locacoes = () => {
     const [locacoes, setLocacoes] = useState([]);
@@ -41,7 +39,11 @@ const Locacoes = () => {
     const [errorMsg, setErrorMsg] = useState("");
 
     const [showQuickClient, setShowQuickClient] = useState(false);
-    const [quickClient, setQuickClient] = useState({ nome: "", numero_celular: "" , locacoes: []});
+    const [quickClient, setQuickClient] = useState({
+        nome: "",
+        numero_celular: "",
+        locacoes: [],
+    });
 
     const initialForm = {
         cliente_id: "",
@@ -69,17 +71,17 @@ const Locacoes = () => {
             const resCli = await authFetch(API_URL + "/clientes/").catch(
                 () => ({ ok: false }),
             );
-            
+
             if (resLoc.ok) {
-                const data = await resLoc.json()
+                const data = await resLoc.json();
 
-                const ordenado = data.sort((a, b) => 
-                    new Date(a.data_montagem) - new Date(b.data_montagem))
-                setLocacoes(ordenado)
-
-            };
+                const ordenado = data.sort(
+                    (a, b) =>
+                        new Date(a.data_montagem) - new Date(b.data_montagem),
+                );
+                setLocacoes(ordenado);
+            }
             if (resCli.ok) setClientes(await resCli.json());
-
         } catch (error) {
             console.error("Erro ao carregar dados:", error);
         }
@@ -109,13 +111,12 @@ const Locacoes = () => {
             const res = await authFetch(API_URL + query);
             if (res.ok) {
                 let data = await res.json();
-                
-                if (isEditing) {
-                    data = [...formData.brinquedos, ...data]
 
+                if (isEditing) {
+                    data = [...formData.brinquedos, ...data];
                 }
                 setBrinquedos(data);
-            } 
+            }
         } catch (error) {
             console.error("Erro ao buscar disponibilidade:", error);
         } finally {
@@ -139,25 +140,26 @@ const Locacoes = () => {
         }
 
         if (view === "ativas") {
-            return true; 
+            return true;
         }
 
         if (view === "futuras") {
-            const dataDevolucao = loc.data_devolucao ? new Date(loc.data_devolucao) : null;
+            const dataDevolucao = loc.data_devolucao
+                ? new Date(loc.data_devolucao)
+                : null;
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
 
             return dataDevolucao && dataDevolucao >= hoje;
         }
 
-        return true; 
+        return true;
     });
-        
 
     const handleOpenModal = (locacao = null) => {
         setErrorMsg("");
         setStep(1);
-        if (locacao) {            
+        if (locacao) {
             setIsEditing(true);
             setCurrentId(locacao.id);
             setFormData({
@@ -175,7 +177,6 @@ const Locacoes = () => {
                     : [],
                 endereco: locacao.endereco || initialForm.endereco,
             });
-
         } else {
             setIsEditing(false);
             setFormData(initialForm);
@@ -204,7 +205,7 @@ const Locacoes = () => {
                 setClientes([...clientes, newClient]);
                 setFormData({ ...formData, cliente_id: newClient.id });
                 setShowQuickClient(false);
-                setQuickClient({ nome: "", numero_celular: "" , locacoes: []});
+                setQuickClient({ nome: "", numero_celular: "", locacoes: [] });
             } else {
                 setShowQuickClient(false);
             }
@@ -229,7 +230,7 @@ const Locacoes = () => {
                 fetchData();
             } else {
                 const err = await response.json().catch(() => ({}));
-                console.error(err)
+                console.error(err);
                 setErrorMsg(
                     err.message ||
                         "Erro ao guardar locação. Verifique a ligação com o servidor. 1",
@@ -272,85 +273,80 @@ const Locacoes = () => {
     );
 
     const TabButton = ({ active, onClick, icon, label }) => (
-    <button
-        onClick={onClick}
-        className={`
+        <button
+            onClick={onClick}
+            className={`
         flex flex-1 items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold
         transition-all duration-300 ease-in-out h-full
         relative z-10 /* Mantém o conteúdo acima do indicador */
-        ${active 
-            ? "text-white" 
-            : "text-slate-400 hover:text-slate-200"}
+        ${active ? "text-white" : "text-white/70 hover:text-slate-200"}
         `}
-    >
-        {icon}
-        <span>{label}</span>
-    </button>
+        >
+            {icon}
+            <span>{label}</span>
+        </button>
     );
 
     const indicatorPosition = {
-        futuras: '0%',
-        ativas: '33.33%',
-        canceladas: '66.66%',
+        futuras: "0%",
+        ativas: "33.33%",
+        canceladas: "66.66%",
     };
 
     const handleRestore = async (id) => {
         try {
-            
-            const response = await authFetch(API_URL + `/locacoes/${id}/restaurar/`, {
-                method: 'PATCH',
-                
-            });
+            const response = await authFetch(
+                API_URL + `/locacoes/${id}/restaurar/`,
+                {
+                    method: "PATCH",
+                },
+            );
 
-            if (response.ok) {                
+            if (response.ok) {
                 fetchData();
-                
-            } 
+            }
         } catch (error) {
             console.error("Erro na requisição:", error);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+        <div className="min-h-screen bg-base text-slate-200 font-sans">
             <Navbar setIsMenuOpen isMenuOpen />
-            <main className="p-4 max-w-5xl mx-auto space-y-6">                
-                <div className="flex flex-col md:flex-row justify-items-start items-start md:items-start gap-4 border-b border-slate-800 pb-6">
+            <main className="p-4 max-w-5xl mx-auto space-y-6">
+                <div className="flex flex-col md:flex-row justify-items-start items-start md:items-start gap-4 border-b border-white/20 pb-6">
                     <div className="flex flex-col items-center w-full max-w-md mx-auto h-full">
-
-                        <div className="relative flex p-2 bg-slate-900/50 h-full border border-slate-800 rounded-xl backdrop-blur-sm w-full">
-
+                        <div className="relative flex p-2 bg-base h-full border border-white/20 rounded-xl backdrop-blur-sm w-full">
                             <div
-                            className="absolute top-1 bottom-1 left-1 rounded-lg bg-indigo-600 shadow-md shadow-indigo-500/20 transition-all duration-300 ease-in-out z-0"
-                            style={{
-                                width: 'calc(33.33% - 8px)',
-                                left: `calc(${indicatorPosition[view]} + 4px)`,
-                            }}
+                                className="absolute top-1 bottom-1 left-1 rounded-lg bg-indigo-600 shadow-md shadow-indigo-500/20 transition-all duration-300 ease-in-out z-0"
+                                style={{
+                                    width: "calc(33.33% - 8px)",
+                                    left: `calc(${indicatorPosition[view]} + 4px)`,
+                                }}
                             />
 
-                            <TabButton 
-                            active={view === "futuras"} 
-                            onClick={() => setView("futuras")}
-                            icon={<Calendar size={14} />}
-                            label="Próximas"
+                            <TabButton
+                                active={view === "futuras"}
+                                onClick={() => setView("futuras")}
+                                icon={<Calendar size={14} />}
+                                label="Próximas"
                             />
 
-                            <TabButton 
-                            active={view === "ativas"} 
-                            onClick={() => setView("ativas")}
-                            icon={<History size={14} />}
-                            label="Histórico"
+                            <TabButton
+                                active={view === "ativas"}
+                                onClick={() => setView("ativas")}
+                                icon={<History size={14} />}
+                                label="Histórico"
                             />
 
-                            <TabButton 
-                            active={view === "canceladas"} 
-                            onClick={() => setView("canceladas")}
-                            icon={<Trash2 size={14} />}
-                            label="Canceladas"
+                            <TabButton
+                                active={view === "canceladas"}
+                                onClick={() => setView("canceladas")}
+                                icon={<Trash2 size={14} />}
+                                label="Canceladas"
                             />
-                            
                         </div>
-                        </div>
+                    </div>
                     <button
                         onClick={() => handleOpenModal()}
                         className="bg-indigo-600  w-full hover:bg-indigo-700 justify-center text-white px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-xl shadow-indigo-600/20 active:scale-95"
@@ -364,20 +360,20 @@ const Locacoes = () => {
                         locacoesExibidas.map((loc) => (
                             <div
                                 key={loc.id}
-                                className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col md:flex-row hover:border-slate-700 transition-colors group"
+                                className="bg-base border border-white/20 rounded-3xl overflow-hidden flex flex-col md:flex-row hover:border-white/20 transition-colors group"
                             >
-                                <div className="p-6 flex-1 bg-slate-950/50 space-y-4">
+                                <div className="p-6 flex-1 bg-base space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">
                                                 Cliente
                                             </p>
-                                            <h3 className="font-bold text-xl text-white truncate max-w-50 group-hover:text-indigo-400 transition-colors">
+                                            <h3 className="font-bold text-xl text-white truncate max-w-50 group-hover:text-white transition-colors">
                                                 {loc.cliente.nome}
                                             </h3>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">
+                                            <p className="text-xs font-bold text-white/70 uppercase tracking-widest mb-1">
                                                 Total
                                             </p>
                                             <span className="text-emerald-400 font-mono font-black text-lg">
@@ -386,60 +382,71 @@ const Locacoes = () => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-400">
-                                        <div className="flex items-center gap-3 border-slate-800  p-3 rounded-2xl border ">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white/70">
+                                        <div className="flex items-center gap-3 border-white/20  p-3 rounded-2xl border ">
                                             <Calendar
                                                 size={18}
                                                 className="text-indigo-500"
                                             />
                                             <div>
-                                                <p className="text-[10px] uppercase font-bold text-slate-500">
+                                                <p className="text-[10px] uppercase font-bold text-white/70">
                                                     Período
                                                 </p>
                                                 <p className="text-slate-300">
                                                     {loc.data_montagem
                                                         ? new Date(
-                                                                loc.data_montagem,
-                                                            ).toLocaleTimeString(
-                                                                "pt-BR", {"day": "2-digit", "month": "2-digit", "hour": "2-digit", "minute": "2-digit"}
-                                                            )
+                                                              loc.data_montagem,
+                                                          ).toLocaleTimeString(
+                                                              "pt-BR",
+                                                              {
+                                                                  day: "2-digit",
+                                                                  month: "2-digit",
+                                                                  hour: "2-digit",
+                                                                  minute: "2-digit",
+                                                              },
+                                                          )
                                                         : "N/A"}{" "}
-                                                    —  
+                                                    —
                                                     {loc.data_devolucao
                                                         ? new Date(
-                                                                loc.data_devolucao,
-                                                            ).toLocaleTimeString(
-                                                                "pt-BR", {"day": "2-digit", "month": "2-digit", "hour": "2-digit", "minute": "2-digit"}
-                                                            )
+                                                              loc.data_devolucao,
+                                                          ).toLocaleTimeString(
+                                                              "pt-BR",
+                                                              {
+                                                                  day: "2-digit",
+                                                                  month: "2-digit",
+                                                                  hour: "2-digit",
+                                                                  minute: "2-digit",
+                                                              },
+                                                          )
                                                         : "N/A"}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 border-slate-800  p-3 rounded-2xl border ">
+                                        <div className="flex items-center gap-3 border-white/20  p-3 rounded-2xl border ">
                                             <MapPin
                                                 size={18}
                                                 className="text-rose-500"
                                             />
                                             <div>
-                                                <p className="text-[10px] uppercase font-bold text-slate-500">
+                                                <p className="text-[10px] uppercase font-bold text-white/70">
                                                     Local
                                                 </p>
                                                 <p className="text-slate-300">
-                                                    {loc.endereco?.rua ||
-                                                        "N/A"}
+                                                    {loc.endereco?.rua || "N/A"}
                                                     ,{" "}
                                                     {loc.endereco?.cidade ||
                                                         "N/A"}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-3 border-slate-800  p-3 rounded-2xl border ">
+                                        <div className="flex items-start gap-3 border-white/20  p-3 rounded-2xl border ">
                                             <Package
                                                 size={18}
                                                 className="text-amber-500 mt-1"
                                             />
                                             <div>
-                                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-1">
+                                                <p className="text-[10px] uppercase font-bold text-white/70 mb-1">
                                                     Itens da Locação
                                                 </p>
                                                 <div className="flex flex-wrap gap-2">
@@ -447,7 +454,7 @@ const Locacoes = () => {
                                                         (b) => (
                                                             <span
                                                                 key={b.id}
-                                                                className="bg-slate-800 text-slate-300 px-3 py-1 rounded-lg text-xs font-medium border border-slate-700"
+                                                                className="bg-base text-slate-300 px-3 py-1 rounded-lg text-xs font-medium border border-white/20"
                                                             >
                                                                 {formatTitleCase(
                                                                     b.tipo.replaceAll(
@@ -463,10 +470,12 @@ const Locacoes = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-slate-950/50 p-4 flex md:flex-col justify-center gap-3 border-t md:border-t-0 md:border-l border-slate-800 w-full md:w-20">
+                                <div className="bg-base p-4 flex md:flex-col justify-center gap-3 border-t md:border-t-0 md:border-l border-white/20 w-full md:w-20">
                                     {view === "canceladas" ? (
                                         <button
-                                            onClick={() => handleRestore(loc.id)}
+                                            onClick={() =>
+                                                handleRestore(loc.id)
+                                            }
                                             className="flex-1 md:flex-none p-3 hover:bg-green-500/20 text-green-500 rounded-2xl transition-all flex justify-center"
                                             title="Restaurar locação"
                                         >
@@ -474,33 +483,36 @@ const Locacoes = () => {
                                         </button>
                                     ) : (
                                         <>
-                                        <button
-                                            onClick={() => handleOpenModal(loc)}
-                                            className="flex-1 md:flex-none p-3 hover:bg-indigo-500/20 text-indigo-400 rounded-2xl transition-all flex justify-center"
-                                        >
-                                            <Edit size={20} />
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setLocacaoIdToDelete(loc.id);
-                                                setIsDeleteModalOpen(true);
-                                            }}
-                                            className="flex-1 md:flex-none p-3 hover:bg-red-500/20 text-red-500 rounded-2xl transition-all flex justify-center"
-                                        >
-                                            <Trash2 size={20} />
-                                        </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleOpenModal(loc)
+                                                }
+                                                className="flex-1 md:flex-none p-3 hover:bg-indigo-500/20 text-white rounded-2xl transition-all flex justify-center"
+                                            >
+                                                <Edit size={20} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setLocacaoIdToDelete(
+                                                        loc.id,
+                                                    );
+                                                    setIsDeleteModalOpen(true);
+                                                }}
+                                                className="flex-1 md:flex-none p-3 hover:bg-red-500/20 text-red-500 rounded-2xl transition-all flex justify-center"
+                                            >
+                                                <Trash2 size={20} />
+                                            </button>
                                         </>
                                     )}
-                                    
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-24 bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-800">
-                            <div className="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-600">
+                        <div className="text-center py-24 bg-base/30 rounded-3xl border-2 border-dashed border-white/20">
+                            <div className="bg-base w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-600">
                                 <Package size={32} />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-400">
+                            <h3 className="text-lg font-bold text-white/70">
                                 Nenhuma locação encontrada
                             </h3>
                             <p className="text-slate-600 text-sm max-w-xs mx-auto mt-2">
@@ -513,9 +525,8 @@ const Locacoes = () => {
             </main>
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 text-slate-200">
-                    <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
-
-                        <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                    <div className="bg-base border border-white/20 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+                        <div className="p-8 border-b border-white/20 flex justify-between items-center bg-base">
                             <div>
                                 <h2 className="text-2xl font-black text-white">
                                     {isEditing
@@ -526,14 +537,14 @@ const Locacoes = () => {
                                     {[1, 2, 3, 4, 5].map((i) => (
                                         <div
                                             key={i}
-                                            className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= i ? "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" : "bg-slate-800"}`}
+                                            className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= i ? "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" : "bg-base"}`}
                                         />
                                     ))}
                                 </div>
                             </div>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="bg-slate-800 p-2 rounded-full text-slate-400 hover:text-white transition-colors"
+                                className="bg-base p-2 rounded-full text-white/70 hover:text-white transition-colors"
                             >
                                 <X size={20} />
                             </button>
@@ -544,7 +555,7 @@ const Locacoes = () => {
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-end">
-                                            <label className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                                            <label className="text-sm font-bold text-white/70 uppercase tracking-widest">
                                                 Selecionar Cliente
                                             </label>
                                             <button
@@ -554,7 +565,7 @@ const Locacoes = () => {
                                                         !showQuickClient,
                                                     )
                                                 }
-                                                className="text-indigo-400 text-xs font-bold hover:underline flex items-center gap-1"
+                                                className="text-white text-xs font-bold hover:underline flex items-center gap-1"
                                             >
                                                 {showQuickClient ? (
                                                     "Cancelar"
@@ -568,28 +579,34 @@ const Locacoes = () => {
                                         </div>
 
                                         {showQuickClient ? (
-                                            <div className="bg-slate-800/50 p-4 rounded-2xl border border-indigo-500/30 space-y-3">
+                                            <div className="bg-base/50 p-4 rounded-2xl border border-white/20 space-y-3">
                                                 <input
                                                     placeholder="Nome do Cliente"
-                                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none focus:border-indigo-500 text-white"
+                                                    className="w-full bg-base border border-white/20 rounded-xl p-3 outline-none focus:border-indigo-500 text-white"
                                                     value={quickClient.nome}
                                                     onChange={(e) =>
                                                         setQuickClient({
                                                             ...quickClient,
-                                                            nome: formatTitleCase(e.target
-                                                                .value),
+                                                            nome: formatTitleCase(
+                                                                e.target.value,
+                                                            ),
                                                         })
                                                     }
                                                 />
                                                 <input
                                                     placeholder="Telefone"
-                                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none text-white"
-                                                    value={quickClient.numero_celular}
+                                                    className="w-full bg-base border border-white/20 rounded-xl p-3 outline-none text-white"
+                                                    value={
+                                                        quickClient.numero_celular
+                                                    }
                                                     onChange={(e) =>
                                                         setQuickClient({
                                                             ...quickClient,
                                                             numero_celular:
-                                                                maskPhone(e.target.value),
+                                                                maskPhone(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
                                                         })
                                                     }
                                                 />
@@ -606,11 +623,11 @@ const Locacoes = () => {
                                             <div className="space-y-3">
                                                 <div className="relative">
                                                     <Search
-                                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70"
                                                         size={18}
                                                     />
                                                     <input
-                                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-white"
+                                                        className="w-full bg-base border border-white/20 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-white"
                                                         placeholder="Pesquisar por nome..."
                                                         value={searchTerm}
                                                         onChange={(e) =>
@@ -637,7 +654,7 @@ const Locacoes = () => {
                                                                             },
                                                                         )
                                                                     }
-                                                                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${formData.cliente_id === c.id ? "bg-indigo-600/20 border-indigo-500 text-white shadow-inner" : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-500"}`}
+                                                                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${formData.cliente_id === c.id ? "bg-indigo-600/20 border-indigo-500 text-white shadow-inner" : "bg-base/50 border-white/20 text-white/70 hover:border-slate-500"}`}
                                                                 >
                                                                     <span className="font-bold">
                                                                         {c.nome}
@@ -648,7 +665,7 @@ const Locacoes = () => {
                                                                             size={
                                                                                 20
                                                                             }
-                                                                            className="text-indigo-400"
+                                                                            className="text-white"
                                                                         />
                                                                     )}
                                                                 </button>
@@ -666,18 +683,18 @@ const Locacoes = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                                        <label className="text-sm font-bold text-white/70 uppercase tracking-widest">
                                             Valor do Contrato
                                         </label>
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-white/70">
                                                 R$
                                             </span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 required
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 pl-12 outline-none focus:ring-2 focus:ring-indigo-500/50 font-mono text-xl text-emerald-400"
+                                                className="w-full bg-base border border-white/20 rounded-2xl p-4 pl-12 outline-none focus:ring-2 focus:ring-indigo-500/50 font-mono text-xl text-emerald-400"
                                                 placeholder="0,00"
                                                 value={formData.valor_total}
                                                 onChange={(e) =>
@@ -695,7 +712,7 @@ const Locacoes = () => {
 
                             {step === 2 && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                                    <div className="flex items-center gap-3 text-indigo-400 mb-2">
+                                    <div className="flex items-center gap-3 text-white mb-2">
                                         <Calendar size={24} />
                                         <h3 className="text-lg font-bold">
                                             Quando será o evento?
@@ -703,13 +720,13 @@ const Locacoes = () => {
                                     </div>
                                     <div className="grid grid-cols-1 gap-6">
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-bold text-slate-500 uppercase">
+                                            <label className="block text-sm font-bold text-white/70 uppercase">
                                                 Data e Hora da Montagem
                                             </label>
                                             <input
                                                 type="datetime-local"
                                                 required
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-lg"
+                                                className="w-full bg-base border border-white/20 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-lg"
                                                 value={formData.data_montagem}
                                                 onChange={(e) =>
                                                     setFormData({
@@ -721,13 +738,13 @@ const Locacoes = () => {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-bold text-slate-500 uppercase">
+                                            <label className="block text-sm font-bold text-white/70 uppercase">
                                                 Data e Hora da Desmontagem
                                             </label>
                                             <input
                                                 type="datetime-local"
                                                 required
-                                                className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-lg"
+                                                className="w-full bg-base border border-white/20 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-lg"
                                                 value={formData.data_devolucao}
                                                 onChange={(e) =>
                                                     setFormData({
@@ -739,7 +756,7 @@ const Locacoes = () => {
                                             />
                                         </div>
                                     </div>
-                                    <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-2xl flex gap-3 text-indigo-300 text-xs italic">
+                                    <div className="bg-indigo-500/10 border border-white/20 p-4 rounded-2xl flex gap-3 text-indigo-300 text-xs italic">
                                         <Info size={16} className="shrink-0" />
                                         <p>
                                             O sistema verificará o stock
@@ -757,7 +774,7 @@ const Locacoes = () => {
                                             <Package className="text-amber-500" />{" "}
                                             Itens Disponíveis
                                         </h3>
-                                        <span className="text-xs text-slate-500">
+                                        <span className="text-xs text-white/70">
                                             {formData.brinquedos_ids.length}{" "}
                                             selecionados
                                         </span>
@@ -765,7 +782,7 @@ const Locacoes = () => {
 
                                     {loadingBrinquedos ? (
                                         <div className="py-20 flex flex-col items-center justify-center space-y-4 text-white">
-                                            <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+                                            <div className="w-10 h-10 border-4 border-white/20 border-t-indigo-500 rounded-full animate-spin" />
                                             <p className="animate-pulse">
                                                 A verificar stock...
                                             </p>
@@ -776,7 +793,7 @@ const Locacoes = () => {
                                                 brinquedos.map((b) => (
                                                     <label
                                                         key={b.id}
-                                                        className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-4 ${formData.brinquedos_ids.includes(b.id) ? "bg-indigo-600/20 border-indigo-500" : "bg-slate-800/50 border-slate-700 hover:border-slate-600"}`}
+                                                        className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-4 ${formData.brinquedos_ids.includes(b.id) ? "bg-indigo-600/20 border-indigo-500" : "bg-base/50 border-white/20 hover:border-slate-600"}`}
                                                     >
                                                         <input
                                                             type="checkbox"
@@ -807,7 +824,7 @@ const Locacoes = () => {
                                                             }}
                                                         />
                                                         <div
-                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${formData.brinquedos_ids.includes(b.id) ? "bg-indigo-500 text-white" : "bg-slate-700 text-slate-500"}`}
+                                                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${formData.brinquedos_ids.includes(b.id) ? "bg-indigo-500 text-white" : "bg-slate-700 text-white/70"}`}
                                                         >
                                                             <Package
                                                                 size={20}
@@ -815,7 +832,10 @@ const Locacoes = () => {
                                                         </div>
                                                         <span className="font-bold text-sm text-white">
                                                             {formatTitleCase(
-                                                                b.tipo.replaceAll("-", " "),
+                                                                b.tipo.replaceAll(
+                                                                    "-",
+                                                                    " ",
+                                                                ),
                                                             )}
                                                         </span>
                                                         {formData.brinquedos_ids.includes(
@@ -823,13 +843,13 @@ const Locacoes = () => {
                                                         ) && (
                                                             <CheckCircle2
                                                                 size={18}
-                                                                className="text-indigo-400 ml-auto"
+                                                                className="text-white ml-auto"
                                                             />
                                                         )}
                                                     </label>
                                                 ))
                                             ) : (
-                                                <div className="col-span-full py-10 text-center bg-slate-800/30 rounded-2xl border border-slate-800 text-slate-500">
+                                                <div className="col-span-full py-10 text-center bg-base/30 rounded-2xl border border-white/20 text-white/70">
                                                     <p>
                                                         Nenhum brinquedo livre
                                                         encontrado para estas
@@ -844,18 +864,17 @@ const Locacoes = () => {
 
                             {step === 4 && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                                    <div className="flex items-center gap-3 text-rose-500">
+                                    <div className="flex items-center gap-3 text-white">
                                         <MapPin size={24} />
                                         <h3 className="text-lg font-bold">
                                             Onde será montado?
                                         </h3>
                                     </div>
                                     <div className="flex flex-col gap-4 text-white">
-                                        
                                         <input
                                             placeholder="Rua"
                                             required
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500"
+                                            className="w-full bg-base border border-white/20 rounded-xl p-3 outline-none focus:border-white"
                                             value={formData.endereco.rua}
                                             onChange={(e) =>
                                                 setFormData({
@@ -869,7 +888,7 @@ const Locacoes = () => {
                                         />
                                         <input
                                             placeholder="Nº"
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500"
+                                            className="w-full bg-base border border-white/20 rounded-xl p-3 outline-none focus:border-white"
                                             required
                                             value={formData.endereco.numero}
                                             onChange={(e) =>
@@ -882,11 +901,11 @@ const Locacoes = () => {
                                                 })
                                             }
                                         />
-                                        
+
                                         <input
                                             placeholder="Cidade"
                                             required
-                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:border-rose-500 col-span-2"
+                                            className="w-full bg-base border border-white/20 rounded-xl p-3 outline-none focus:border-white col-span-2"
                                             value={formData.endereco.cidade}
                                             onChange={(e) =>
                                                 setFormData({
@@ -898,7 +917,6 @@ const Locacoes = () => {
                                                 })
                                             }
                                         />
-                                        
                                     </div>
                                 </div>
                             )}
@@ -913,17 +931,17 @@ const Locacoes = () => {
                                         <h3 className="text-xl font-black">
                                             Confirme os detalhes
                                         </h3>
-                                        <p className="text-slate-500 text-sm">
+                                        <p className="text-white/70 text-sm">
                                             Verifique se tudo está correto antes
                                             de finalizar.
                                         </p>
                                     </div>
-                                    <div className="bg-slate-800/50 p-6 rounded-3xl border border-slate-700 space-y-4">
-                                        <div className="flex justify-between border-b border-slate-700 pb-2">
-                                            <span className="text-slate-500 text-xs font-bold uppercase">
+                                    <div className="bg-base/50 p-6 rounded-3xl border border-white/20 space-y-4">
+                                        <div className="flex justify-between border-b border-white/20 pb-2">
+                                            <span className="text-white/70 text-xs font-bold uppercase">
                                                 Cliente
                                             </span>
-                                            <span className="font-bold text-indigo-400">
+                                            <span className="font-bold text-white">
                                                 {clientes.find(
                                                     (c) =>
                                                         c.id ===
@@ -932,25 +950,25 @@ const Locacoes = () => {
                                                     "Cliente Não Encontrado"}
                                             </span>
                                         </div>
-                                        <div className="flex justify-between border-b border-slate-700 pb-2">
-                                            <span className="text-slate-500 text-xs font-bold uppercase">
+                                        <div className="flex justify-between border-b border-white/20 pb-2">
+                                            <span className="text-white/70 text-xs font-bold uppercase">
                                                 Valor Total
                                             </span>
                                             <span className="font-mono font-black text-emerald-400">
                                                 R$ {formData.valor_total}
                                             </span>
                                         </div>
-                                        <div className="flex justify-between border-b border-slate-700 pb-2">
-                                            <span className="text-slate-500 text-xs font-bold uppercase">
+                                        <div className="flex justify-between border-b border-white/20 pb-2">
+                                            <span className="text-white/70 text-xs font-bold uppercase">
                                                 Local
                                             </span>
                                             <span className="text-right text-xs">
                                                 {formData.endereco.rua},{" "}
-                                                {formData.endereco.numero} 
+                                                {formData.endereco.numero}
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-tighter">
+                                            <p className="text-xs font-bold text-white/70 mb-2 uppercase tracking-tighter">
                                                 Itens Selecionados (
                                                 {formData.brinquedos_ids.length}
                                                 )
@@ -972,7 +990,10 @@ const Locacoes = () => {
                                                                     className="bg-slate-700 px-3 py-1 rounded-lg text-[10px] border border-slate-600"
                                                                 >
                                                                     {toy
-                                                                        ? toy.tipo.replaceAll("-", " ")
+                                                                        ? toy.tipo.replaceAll(
+                                                                              "-",
+                                                                              " ",
+                                                                          )
                                                                         : `Brinquedo #${id}`}
                                                                 </span>
                                                             );
@@ -987,7 +1008,7 @@ const Locacoes = () => {
                                         </div>
                                     </div>
                                     {errorMsg && (
-                                        <div className="bg-rose-500/10 border border-rose-500/30 p-4 rounded-2xl flex items-center gap-2 text-rose-400 text-xs font-bold">
+                                        <div className="bg-white/10 border border-white/30 p-4 rounded-2xl flex items-center gap-2 text-rose-400 text-xs font-bold">
                                             <AlertCircle size={16} /> {errorMsg}
                                         </div>
                                     )}
@@ -995,18 +1016,18 @@ const Locacoes = () => {
                             )}
                         </div>
 
-                        <div className="p-8 border-t border-slate-800 bg-slate-900/80 flex justify-between gap-4">
+                        <div className="p-8 border-t border-white/20 bg-base/80 flex justify-between gap-4">
                             {step > 1 ? (
                                 <button
                                     onClick={handlePrevStep}
-                                    className="flex-1 bg-slate-800 hover:bg-slate-700 py-4 rounded-2xl font-bold transition-colors"
+                                    className="flex-1 bg-base hover:bg-slate-700 py-4 rounded-2xl font-bold transition-colors"
                                 >
                                     Voltar
                                 </button>
                             ) : (
                                 <button
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 bg-slate-800 hover:bg-slate-700 py-4 rounded-2xl font-bold transition-colors"
+                                    className="flex-1 bg-base hover:bg-slate-700 py-4 rounded-2xl font-bold transition-colors"
                                 >
                                     Cancelar
                                 </button>
@@ -1016,15 +1037,18 @@ const Locacoes = () => {
                                 <button
                                     onClick={handleNextStep}
                                     disabled={
-                                        (step === 1 && !formData.cliente_id || !formData.valor_total) ||
+                                        (step === 1 && !formData.cliente_id) ||
+                                        !formData.valor_total ||
                                         (step === 2 &&
                                             (!formData.data_montagem ||
-                                                !formData.data_devolucao)) || 
-                                        (step === 3 && formData.brinquedos_ids.length === 0) ||
+                                                !formData.data_devolucao)) ||
+                                        (step === 3 &&
+                                            formData.brinquedos_ids.length ===
+                                                0) ||
                                         (step === 4 &&
                                             (!formData.endereco.rua ||
-                                            !formData.endereco.numero ||
-                                            !formData.endereco.cidade))
+                                                !formData.endereco.numero ||
+                                                !formData.endereco.cidade))
                                     }
                                     className="flex-2 bg-indigo-600 hover:bg-indigo-700 px-12 py-4 rounded-2xl font-black disabled:opacity-30 disabled:cursor-not-allowed transition-all text-white shadow-lg shadow-indigo-600/20"
                                 >
@@ -1045,14 +1069,14 @@ const Locacoes = () => {
 
             {isDeleteModalOpen && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-60 text-slate-200">
-                    <div className="bg-slate-900 border border-red-500/20 p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl text-center space-y-6">
+                    <div className="bg-base border border-red-500/20 p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl text-center space-y-6">
                         <div className="bg-red-500/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto text-red-500">
                             <Trash2 size={40} />
                         </div>
                         <h2 className="text-2xl font-black">
                             Remover Locação?
                         </h2>
-                        <p className="text-slate-500 text-sm italic">
+                        <p className="text-white/70 text-sm italic">
                             Esta ação libertará os brinquedos no stock para
                             estas datas.
                         </p>
@@ -1065,7 +1089,7 @@ const Locacoes = () => {
                             </button>
                             <button
                                 onClick={() => setIsDeleteModalOpen(false)}
-                                className="w-full bg-slate-800 hover:bg-slate-700 py-4 rounded-2xl font-bold text-slate-400"
+                                className="w-full bg-base hover:bg-slate-700 py-4 rounded-2xl font-bold text-white/70"
                             >
                                 Cancelar
                             </button>

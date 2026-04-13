@@ -1,47 +1,51 @@
 import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
-import Login from "../src/auth/Login.jsx"
-import Logout from "../src/auth/Logout.jsx"
-import RedefinirSenha from "../src/auth/RedefinirSenha.jsx"
-import Home from "../src/locacoes/Home.jsx"
-import Colaboradores from "../src/locacoes/Colaboradores.jsx"
+import Login from "./auth/Login.jsx";
+import Logout from "./auth/Logout.jsx";
+import RedefinirSenha from "./auth/RedefinirSenha.jsx";
+import Home from "./locacoes/Home.jsx";
+import Colaboradores from "./locacoes/Colaboradores.jsx";
 import Brinquedos from "./locacoes/Brinquedos.jsx";
-import Clientes from "./locacoes/Clientes.jsx"
-import Locacoes from "./locacoes/Locacoes.jsx"
+import Clientes from "./locacoes/Clientes.jsx";
+import Locacoes from "./locacoes/Locacoes.jsx";
+import Dashboard from "./locacoes/Dashbord.jsx";
 
 const router = createBrowserRouter([
     {
         path: "/login",
-        element: <Login />
+        element: <Login />,
     },
     {
         path: "/logout",
-        element: <Logout/>
+        element: <Logout />,
     },
     {
         path: "/redefinir-senha/:uid/:token",
-        element: <RedefinirSenha/>
+        element: <RedefinirSenha />,
     },
     {
         path: "/",
-        element: <Home/>
+        element: <Home />,
     },
     {
         path: "/colaboradores",
-        element: <Colaboradores/>
+        element: <Colaboradores />,
     },
     {
         path: "/brinquedos",
-        element: <Brinquedos/>
+        element: <Brinquedos />,
     },
     {
         path: "/clientes",
-        element: <Clientes/>
+        element: <Clientes />,
     },
     {
         path: "/locacoes",
-        element: <Locacoes/>
+        element: <Locacoes />,
+    },
+    {
+        path: "/dashbord",
+        element: <Dashboard/>
     }
-
 ]);
 
 function App() {

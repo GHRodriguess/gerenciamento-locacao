@@ -10,12 +10,17 @@ const Locacoes = ({ locacoes = [], onSelect, limit }) => {
                     <div
                         key={loc.id}
                         onClick={() => onSelect(loc)}
-                        className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-lg hover:border-indigo-500/50 transition-all cursor-pointer active:scale-95"
+                        className="bg-base p-5 rounded-2xl border border-white/20 space-y-3 shadow-lg hover:border-white/20 transition-all cursor-pointer active:scale-95"
                     >
                         <div className="flex justify-between items-start">
                             <h4 className="font-bold text-white flex items-center gap-2 truncate max-w-50 text-lg">
-                                <UserRound size={20} className="shrink-0 text-white" />
-                                <span className="truncate">{loc.cliente.nome}</span>
+                                <UserRound
+                                    size={20}
+                                    className="shrink-0 text-white"
+                                />
+                                <span className="truncate">
+                                    {loc.cliente.nome}
+                                </span>
                             </h4>
                             <span className="text-emerald-400 font-bold bg-emerald-400/10 px-3 py-1 rounded-lg text-sm">
                                 R$ {loc.valor_total}
@@ -29,13 +34,17 @@ const Locacoes = ({ locacoes = [], onSelect, limit }) => {
                             </p>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                        <div className="flex items-center justify-between pt-2 border-t border-white/20">
                             <div className="flex gap-4 text-[11px] font-semibold">
                                 <span className="text-blue-400">
-                                    {new Date(loc.data_montagem).toLocaleString("pt-BR")}
+                                    {new Date(loc.data_montagem).toLocaleString(
+                                        "pt-BR",
+                                    )}
                                 </span>
-                                <span className="text-orange-400">
-                                    {new Date(loc.data_devolucao).toLocaleString("pt-BR")}
+                                <span className="text-red-500">
+                                    {new Date(
+                                        loc.data_devolucao,
+                                    ).toLocaleString("pt-BR")}
                                 </span>
                             </div>
 
@@ -43,7 +52,7 @@ const Locacoes = ({ locacoes = [], onSelect, limit }) => {
                                 {loc.brinquedos.map((_, i) => (
                                     <div
                                         key={i}
-                                        className="w-6 h-6 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center"
+                                        className="w-6 h-6 rounded-full bg-base border-2 border-slate-900 flex items-center justify-center"
                                     >
                                         <Castle size={12} />
                                     </div>
@@ -53,10 +62,8 @@ const Locacoes = ({ locacoes = [], onSelect, limit }) => {
                     </div>
                 ))
             ) : (
-                <div className="bg-slate-900/50 p-8 rounded-2xl border border-dashed border-slate-800 text-center">
-                    <p className="text-slate-500">
-                        Nenhuma locação encontrada.
-                    </p>
+                <div className="bg-base p-8 rounded-2xl border border-dashed border-white/20 text-center">
+                    <p className="text-white/90">Nenhuma locação encontrada.</p>
                 </div>
             )}
         </div>

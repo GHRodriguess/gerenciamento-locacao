@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/NavBar";
-import authFetch from "../auth/utils/AuthFetch";
+import authFetch from "../utils/AuthFetch";
 import { X } from "lucide-react";
 import Toast from "../components/Toast";
 
@@ -21,7 +21,11 @@ const Clientes = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [clientNameToDelete, setClientNameToDelete] = useState("");
     const [clientIdToDelete, setClientIdToDelete] = useState(null);
-    const [toast, setToast] = useState({isOpen: false, message: "", type: "sucess"})
+    const [toast, setToast] = useState({
+        isOpen: false,
+        message: "",
+        type: "sucess",
+    });
 
     const showToast = (message, type = "success") => {
         setToast({ isOpen: true, message, type });
@@ -100,13 +104,17 @@ const Clientes = () => {
             if (response.ok) {
                 setIsModalOpen(false);
                 fetchClientes();
-                const mensagem = isEditing ? "Cliente editado com sucesso" : "Cliente criado com sucesso"
-                showToast(mensagem, "info")
+                const mensagem = isEditing
+                    ? "Cliente editado com sucesso"
+                    : "Cliente criado com sucesso";
+                showToast(mensagem, "info");
             }
         } catch (error) {
             console.error("Erro na operação:", error);
-            const mensagem = isEditing ? "Erro ao editar cliente" : "Erro ao criar cliente"
-            showToast(mensagem, "error")
+            const mensagem = isEditing
+                ? "Erro ao editar cliente"
+                : "Erro ao criar cliente";
+            showToast(mensagem, "error");
         }
     };
 
@@ -127,28 +135,28 @@ const Clientes = () => {
 
             if (response.ok) {
                 fetchClientes();
-                setIsDeleteModalOpen(false);                    
-                showToast("Usuário deletado com sucesso", "info")
+                setIsDeleteModalOpen(false);
+                showToast("Usuário deletado com sucesso", "info");
                 return;
             }
 
             const data = await response.json();
 
             if (response.status === 409) {
-                setDeleteError(data.message);                
+                setDeleteError(data.message);
             }
         } catch (error) {
-            console.error(error)
+            console.error(error);
             setDeleteError("Erro inesperado ao remover cliente.");
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+        <div className="min-h-screen bg-base text-slate-200 font-sans">
             <Navbar setIsMenuOpen isMenuOpen />
 
             <main className="p-4 max-w-4xl mx-auto space-y-6">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+                <div className="flex justify-between items-center border-b border-white/20 pb-4">
                     <h1 className="text-2xl font-bold">Clientes</h1>
                     <button
                         onClick={() => handleOpenModal()}
@@ -162,13 +170,13 @@ const Clientes = () => {
                     <input
                         type="text"
                         placeholder="Pesquisar por nome ou celular..."
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 pl-11 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                        className="w-full bg-base border border-white/20 rounded-xl py-3 px-4 pl-11 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 absolute left-4 top-3.5 text-slate-500"
+                        className="h-5 w-5 absolute left-4 top-3.5 text-white/90"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -187,15 +195,15 @@ const Clientes = () => {
                         clientesFiltrados.map((cliente) => (
                             <div
                                 key={cliente.id}
-                                className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center"
+                                className="bg-base p-4 rounded-xl border border-white/20 flex justify-between items-center"
                             >
                                 <div>
                                     <p className="font-semibold text-lg">
                                         {cliente.nome}
                                     </p>
-                                    <p className="text-slate-400 text-sm">
+                                    <p className="text-white/70 text-sm">
                                         {cliente.numero_celular} |
-                                        <span className="ml-2 text-indigo-400">
+                                        <span className="ml-2 text-white">
                                             {cliente.locacoes?.length || 0}{" "}
                                             Locações
                                         </span>
@@ -206,7 +214,7 @@ const Clientes = () => {
                                         href={`https://wa.me/${cliente.numero_celular.replace(/\D/g, "")}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="p-2 text-slate-500 hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all"
+                                        className="p-2 text-green-500 hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all"
                                         title="Enviar mensagem"
                                     >
                                         <svg
@@ -220,7 +228,7 @@ const Clientes = () => {
                                     </a>
                                     <button
                                         onClick={() => handleOpenModal(cliente)}
-                                        className="p-2 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all"
+                                        className="p-2 text-amber-300 hover:bg-amber-300/10 rounded-lg transition-all"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -244,7 +252,7 @@ const Clientes = () => {
                                                 cliente.id,
                                             )
                                         }
-                                        className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                        className="p-2 text-red-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -265,7 +273,7 @@ const Clientes = () => {
                             </div>
                         ))
                     ) : (
-                        <p className="text-center text-slate-500 py-10">
+                        <p className="text-center text-white/90 py-10">
                             {searchTerm
                                 ? "Nenhum cliente corresponde à sua pesquisa."
                                 : "Nenhum cliente cadastrado."}
@@ -276,18 +284,18 @@ const Clientes = () => {
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md shadow-2xl">
+                    <div className="bg-base border border-white/20 p-6 rounded-2xl w-full max-w-md shadow-2xl">
                         <h2 className="text-xl font-bold mb-4">
                             {isEditing ? "Editar Cliente" : "Novo Cliente"}
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm mb-1 text-slate-400">
+                                <label className="block text-sm mb-1 text-white/70">
                                     Nome Completo
                                 </label>
                                 <input
                                     required
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full bg-base border border-white/20 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     value={formData.nome}
                                     onChange={(e) =>
                                         setFormData({
@@ -300,14 +308,14 @@ const Clientes = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm mb-1 text-slate-400">
+                                <label className="block text-sm mb-1 text-white/70">
                                     Celular
                                 </label>
                                 <input
                                     required
                                     type="text"
                                     placeholder="(99) 99999-9999"
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full bg-base border border-white/20 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     value={formData.numero_celular}
                                     onChange={(e) =>
                                         setFormData({
@@ -322,9 +330,8 @@ const Clientes = () => {
                             <div className="flex justify-end gap-3 mt-6">
                                 <button
                                     type="button"
-                                    onClick={() =>  setIsModalOpen(false)                         
-                                    }
-                                    className="px-4 py-2 text-slate-400"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="px-4 py-2 text-white/70"
                                 >
                                     Cancelar
                                 </button>
@@ -342,11 +349,11 @@ const Clientes = () => {
 
             {isDeleteModalOpen && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-60">
-                    <div className="bg-slate-900 border border-red-500/30 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
+                    <div className="bg-base border border-red-500/30 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
                         <h2 className="text-xl font-bold text-white mb-2">
                             Remover Cliente
                         </h2>
-                        <p className="text-slate-400 mb-8">
+                        <p className="text-white/70 mb-8">
                             Deseja remover {clientNameToDelete}?
                         </p>
                         <div className="flex flex-col gap-3">
@@ -357,8 +364,11 @@ const Clientes = () => {
                                 Sim, remover
                             </button>
                             <button
-                                onClick={() => {setIsDeleteModalOpen(false); setDeleteError("");}}
-                                className="w-full bg-slate-800 py-3 rounded-xl"
+                                onClick={() => {
+                                    setIsDeleteModalOpen(false);
+                                    setDeleteError("");
+                                }}
+                                className="w-full bg-base py-3 rounded-xl"
                             >
                                 Cancelar
                             </button>
@@ -371,11 +381,11 @@ const Clientes = () => {
                     </div>
                 </div>
             )}
-            <Toast 
-                isOpen={toast.isOpen} 
-                message={toast.message} 
-                type={toast.type} 
-                onClose={() => setToast({ ...toast, isOpen: false })} 
+            <Toast
+                isOpen={toast.isOpen}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast({ ...toast, isOpen: false })}
             />
         </div>
     );

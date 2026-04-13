@@ -49,8 +49,8 @@ export default function RedefinirSenha() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl">
+        <div className="min-h-screen bg-base text-slate-200 font-sans flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-base border border-white/20 p-8 rounded-3xl shadow-2xl">
                 <div className="mb-8 text-center">
                     <div className="w-16 h-16 bg-indigo-500/10 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg
@@ -71,20 +71,20 @@ export default function RedefinirSenha() {
                     <h2 className="text-2xl font-bold text-white">
                         Redefinir senha
                     </h2>
-                    <p className="text-slate-400 mt-2 text-sm">
+                    <p className="text-white/70 mt-2 text-sm">
                         Digite sua nova senha abaixo para recuperar o acesso.
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-1">
-                        <label className="text-sm text-slate-400 ml-1">
+                        <label className="text-sm text-white/70 ml-1">
                             Nova senha
                         </label>
                         <input
                             type="password"
                             placeholder="••••••••"
-                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
+                            className="w-full bg-base border border-white/20 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -92,13 +92,13 @@ export default function RedefinirSenha() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm text-slate-400 ml-1">
+                        <label className="text-sm text-white/70 ml-1">
                             Confirmar senha
                         </label>
                         <input
                             type="password"
                             placeholder="••••••••"
-                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
+                            className="w-full bg-base border border-white/20 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
@@ -149,7 +149,7 @@ export default function RedefinirSenha() {
                 <div className="mt-8 text-center text-sm">
                     <button
                         onClick={() => window.history.back()}
-                        className="text-slate-500 hover:text-slate-300 transition-colors"
+                        className="text-white/90 hover:text-slate-300 transition-colors"
                     >
                         ← Voltar para o login
                     </button>

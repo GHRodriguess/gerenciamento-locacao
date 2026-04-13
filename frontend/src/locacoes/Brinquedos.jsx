@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import Navbar from "../components/NavBar";
-import authFetch from "../auth/utils/AuthFetch";
+import authFetch from "../utils/AuthFetch";
 import Toast from "../components/Toast";
 
 const Brinquedos = () => {
@@ -113,13 +113,13 @@ const Brinquedos = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+        <div className="min-h-screen bg-base text-slate-200 font-sans">
             <Navbar setIsMenuOpen isMenuOpen />
 
             <main className="p-4 max-w-4xl mx-auto space-y-6">
-                <div className="space-y-6 border-b border-slate-800 pb-8">
+                <div className="space-y-6 border-b border-white/20 pb-8">
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between w-full">
-                        <div className="relative flex p-1 bg-slate-900/50 border border-slate-800 rounded-xl backdrop-blur-sm w-full md:max-w-md">
+                        <div className="relative flex p-1 bg-base border border-white/20 rounded-xl backdrop-blur-sm w-full md:max-w-md">
                             <div
                                 className="absolute top-1 bottom-1 rounded-lg bg-indigo-600 shadow-md shadow-indigo-500/20 transition-all duration-300 ease-in-out z-0"
                                 style={{
@@ -134,16 +134,15 @@ const Brinquedos = () => {
                             <button
                                 onClick={() => {
                                     setViewMode("todos");
-                                    
                                 }}
-                                className={`relative z-10 flex-1 py-2 text-sm font-medium transition-colors duration-300 ${viewMode === "todos" ? "text-white" : "text-slate-400 hover:text-slate-200"}`}
+                                className={`relative z-10 flex-1 py-2 text-sm font-medium transition-colors duration-300 ${viewMode === "todos" ? "text-white" : "text-white/70 hover:text-slate-200"}`}
                             >
                                 Todos os Brinquedos
                             </button>
 
                             <button
                                 onClick={() => setViewMode("disponibilidade")}
-                                className={`relative z-10 flex-1 py-2 text-sm font-medium transition-colors duration-300 ${viewMode === "disponibilidade" ? "text-white" : "text-slate-400 hover:text-slate-200"}`}
+                                className={`relative z-10 flex-1 py-2 text-sm font-medium transition-colors duration-300 ${viewMode === "disponibilidade" ? "text-white" : "text-white/70 hover:text-slate-200"}`}
                             >
                                 Disponibilidade
                             </button>
@@ -162,15 +161,15 @@ const Brinquedos = () => {
                     <div className="space-y-4">
                         <form
                             onSubmit={checkAvailability}
-                            className="bg-slate-900 border border-indigo-500/20 p-6 rounded-2xl flex flex-wrap items-center gap-4 shadow-xl animate-in fade-in slide-in-from-top-4"
+                            className="bg-base border border-white/20 p-6 rounded-2xl flex flex-wrap items-center gap-4 shadow-xl animate-in fade-in slide-in-from-top-4"
                         >
                             <div className="w-full md:flex-1 px-1 mr-4">
-                                <label className="block text-xs text-slate-400 mb-2 uppercase tracking-wider">
+                                <label className="block text-xs text-white/70 mb-2 uppercase tracking-wider">
                                     Início (Data e Hora)
                                 </label>
                                 <input
                                     type="datetime-local"
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 scheme:dark"
+                                    className="w-full bg-base border border-white/20 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 scheme:dark"
                                     onChange={(e) =>
                                         setDates({
                                             ...dates,
@@ -182,12 +181,12 @@ const Brinquedos = () => {
                                 />
                             </div>
                             <div className="w-full md:flex-1 px-1 mr-4">
-                                <label className="block text-xs text-slate-400 mb-2 uppercase tracking-wider">
+                                <label className="block text-xs text-white/70 mb-2 uppercase tracking-wider">
                                     Fim (Data e Hora)
                                 </label>
                                 <input
                                     type="datetime-local"
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 scheme:dark"
+                                    className="w-full bg-base border border-white/20 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 scheme:dark"
                                     onChange={(e) =>
                                         setDates({
                                             ...dates,
@@ -237,7 +236,7 @@ const Brinquedos = () => {
                         brinquedos.map((item) => (
                             <div
                                 key={item.id}
-                                className="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex justify-between items-center hover:border-slate-700 transition-all group"
+                                className="bg-base p-5 rounded-2xl border border-white/20 flex justify-between items-center hover:border-white/20 transition-all group"
                             >
                                 <div className="flex items-center gap-4">
                                     <div
@@ -247,7 +246,7 @@ const Brinquedos = () => {
                                         <p className="font-bold text-lg capitalize">
                                             {item.tipo.replaceAll("-", " ")}
                                         </p>
-                                        <p className="text-slate-500 text-sm">
+                                        <p className="text-white/90 text-sm">
                                             Status:{" "}
                                             {item.ativo
                                                 ? "Ativo no sistema"
@@ -260,7 +259,7 @@ const Brinquedos = () => {
                                         setBrinquedoToDelete(item);
                                         setIsDeleteModalOpen(true);
                                     }}
-                                    className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                    className="p-2 text-white/90 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -280,8 +279,8 @@ const Brinquedos = () => {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-20 rounded-3xl border border-dashed border-slate-800">
-                            <p className="text-slate-500">
+                        <div className="text-center py-20 rounded-3xl border border-dashed border-white/20">
+                            <p className="text-white/90">
                                 Nenhum brinquedo encontrado para esta seleção.
                             </p>
                         </div>
@@ -291,17 +290,17 @@ const Brinquedos = () => {
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-md shadow-2xl">
+                    <div className="bg-base border border-white/20 p-8 rounded-3xl w-full max-w-md shadow-2xl">
                         <h2 className="text-xl font-bold mb-6">
                             Novo Brinquedo
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
-                                <label className="block text-sm text-slate-400 mb-2">
+                                <label className="block text-sm text-white/70 mb-2">
                                     Tipo de Brinquedo
                                 </label>
                                 <select
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full bg-base border border-white/20 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500"
                                     value={formData.tipo}
                                     onChange={(e) =>
                                         setFormData({
@@ -324,7 +323,7 @@ const Brinquedos = () => {
                                     </option>
                                 </select>
                             </div>
-                            <div className="flex items-center gap-3 bg-slate-800/50 p-4 rounded-xl border border-slate-800">
+                            <div className="flex items-center gap-3 bg-base/50 p-4 rounded-xl border border-white/20">
                                 <input
                                     type="checkbox"
                                     id="ativo"
@@ -348,7 +347,7 @@ const Brinquedos = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                                    className="px-4 py-2 text-white/70 hover:text-white transition-colors"
                                 >
                                     Cancelar
                                 </button>
@@ -366,7 +365,7 @@ const Brinquedos = () => {
 
             {isDeleteModalOpen && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-60">
-                    <div className="bg-slate-900 border border-red-500/30 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
+                    <div className="bg-base border border-red-500/30 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
                         <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -386,7 +385,7 @@ const Brinquedos = () => {
                         <h2 className="text-xl font-bold mb-2">
                             Remover Brinquedo
                         </h2>
-                        <p className="text-slate-400 mb-8 text-sm italic">
+                        <p className="text-white/70 mb-8 text-sm italic">
                             Esta ação excluirá permanentemente o item "
                             {brinquedoToDelete?.tipo}".
                         </p>
@@ -399,7 +398,7 @@ const Brinquedos = () => {
                             </button>
                             <button
                                 onClick={() => setIsDeleteModalOpen(false)}
-                                className="w-full bg-slate-800 text-slate-300 py-3 rounded-xl transition-all"
+                                className="w-full bg-base text-slate-300 py-3 rounded-xl transition-all"
                             >
                                 Cancelar
                             </button>
