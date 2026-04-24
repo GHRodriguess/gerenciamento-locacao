@@ -3,6 +3,11 @@
 import uuid
 from django.db import migrations, models
 
+def gen_uuid(apps, schema_editor):
+    Locacao = apps.get_model('a_locacoes', 'Locacao')
+    for row in Locacao.objects.all():
+        row.uuid_publico = uuid.uuid4()
+        row.save(update_fields=['uuid_publico'])
 
 class Migration(migrations.Migration):
 
@@ -11,6 +16,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(gen_uuid, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
             model_name='locacao',
             name='uuid_publico',
