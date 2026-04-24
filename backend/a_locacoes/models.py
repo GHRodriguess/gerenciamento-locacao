@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 
 class Locacao(models.Model):
-    uuid_publico = models.UUIDField(default=uuid.uuid4, editable=False)
+    uuid_publico = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     data_locacao = models.DateTimeField(auto_now_add=True)
     data_montagem = models.DateTimeField()
     data_devolucao = models.DateTimeField()
