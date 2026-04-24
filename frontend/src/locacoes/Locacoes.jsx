@@ -18,9 +18,14 @@ import {
     History,
     AlertCircle,
     RotateCcw,
+    Share2,
+    Copy,
+    Check
 } from "lucide-react";
 import authFetch from "../utils/AuthFetch";
 import Navbar from "../components/NavBar";
+import Toast from "../components/Toast";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -32,6 +37,9 @@ const Locacoes = () => {
 
     const [step, setStep] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [createdUuid, setCreatedUuid] = useState(null);
+    const [copied, setCopied] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -81,7 +89,15 @@ const Locacoes = () => {
                 );
                 setLocacoes(ordenado);
             }
-            if (resCli.ok) setClientes(await resCli.json());
+            if (resCli.ok) {
+                const data = await resCli.json();
+                const sortedData = data.sort((a, b) =>
+                    a.nome.localeCompare(b.nome, "pt-BR", {
+                        sensitivity: "base",
+                    }),
+                );
+                setClientes(sortedData);
+            }
         } catch (error) {
             console.error("Erro ao carregar dados:", error);
         }
@@ -159,6 +175,9 @@ const Locacoes = () => {
     const handleOpenModal = (locacao = null) => {
         setErrorMsg("");
         setStep(1);
+        setShowSuccess(false);
+        setCreatedUuid(null);
+        setCopied(false);
         if (locacao) {
             setIsEditing(true);
             setCurrentId(locacao.id);
@@ -184,6 +203,13 @@ const Locacoes = () => {
         setIsModalOpen(true);
     };
 
+    const handleCopyLink = (uuid) => {
+        const link = `${window.location.origin}/locacao/${uuid}`;
+        navigator.clipboard.writeText(link);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     const handleNextStep = () => {
         if (step === 1 && !formData.cliente_id) return;
         if (step === 2 && (!formData.data_montagem || !formData.data_devolucao))
@@ -202,7 +228,12 @@ const Locacoes = () => {
             });
             if (res.ok) {
                 const newClient = await res.json();
-                setClientes([...clientes, newClient]);
+                const updatedClientes = [...clientes, newClient].sort((a, b) =>
+                    a.nome.localeCompare(b.nome, "pt-BR", {
+                        sensitivity: "base",
+                    }),
+                );
+                setClientes(updatedClientes);
                 setFormData({ ...formData, cliente_id: newClient.id });
                 setShowQuickClient(false);
                 setQuickClient({ nome: "", numero_celular: "", locacoes: [] });
@@ -226,8 +257,14 @@ const Locacoes = () => {
                 body: JSON.stringify(formData),
             });
             if (response.ok) {
-                setIsModalOpen(false);
+                const data = await response.json();
                 fetchData();
+                if (!isEditing) {
+                    setCreatedUuid(data.uuid_publico);
+                    setShowSuccess(true);
+                } else {
+                    setIsModalOpen(false);
+                }
             } else {
                 const err = await response.json().catch(() => ({}));
                 console.error(err);
@@ -484,6 +521,13 @@ const Locacoes = () => {
                                     ) : (
                                         <>
                                             <button
+                                                onClick={() => handleCopyLink(loc.uuid_publico)}
+                                                className="flex-1 md:flex-none p-3 hover:bg-emerald-500/20 text-emerald-500 rounded-2xl transition-all flex justify-center"
+                                                title="Compartilhar locação"
+                                            >
+                                                <Share2 size={20} />
+                                            </button>
+                                            <button
                                                 onClick={() =>
                                                     handleOpenModal(loc)
                                                 }
@@ -526,31 +570,64 @@ const Locacoes = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 text-slate-200">
                     <div className="bg-base border border-white/20 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
-                        <div className="p-8 border-b border-white/20 flex justify-between items-center bg-base">
-                            <div>
-                                <h2 className="text-2xl font-black text-white">
-                                    {isEditing
-                                        ? "Editar Locação"
-                                        : "Nova Locação"}
-                                </h2>
-                                <div className="flex gap-1.5 mt-3">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <div
-                                            key={i}
-                                            className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= i ? "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" : "bg-base"}`}
-                                        />
-                                    ))}
+                        {showSuccess ? (
+                            <div className="p-12 text-center space-y-8 animate-in zoom-in-95 duration-300">
+                                <div className="space-y-4">
+                                    <div className="bg-emerald-500/10 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto border border-emerald-500/20">
+                                        <CheckCircle2 size={40} className="text-emerald-500" />
+                                    </div>
+                                    <h2 className="text-3xl font-black text-white">Locação Criada!</h2>
+                                    <p className="text-slate-400 font-medium">A locação foi registrada com sucesso no sistema.</p>
                                 </div>
-                            </div>
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="bg-base p-2 rounded-full text-white/70 hover:text-white transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
 
-                        <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                                <div className="bg-white/5 border border-white/10 p-6 rounded-[2rem] space-y-4">
+                                   <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em]">Link de Compartilhamento</p>
+                                   <div className="space-y-3">
+                                       <div className="bg-base border border-white/10 px-4 py-3 rounded-2xl text-center text-xs text-slate-300 break-all font-mono">
+                                           {window.location.origin}/locacao/{createdUuid}
+                                       </div>
+                                       <button 
+                                           onClick={() => handleCopyLink(createdUuid)}
+                                           className={`${copied ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'} text-white w-full py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 font-bold`}
+                                       >
+                                           {copied ? 'Link Copiado' : 'Copiar Link'}
+                                       </button>
+                                   </div>
+                                </div>
+                                <button 
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="w-full bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl font-bold border border-white/10 transition-all"
+                                >
+                                    Fechar Janela
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="p-8 border-b border-white/20 flex justify-between items-center bg-base">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-white">
+                                            {isEditing
+                                                ? "Editar Locação"
+                                                : "Nova Locação"}
+                                        </h2>
+                                        <div className="flex gap-1.5 mt-3">
+                                            {[1, 2, 3, 4, 5].map((i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= i ? "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" : "bg-base"}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="bg-base p-2 rounded-full text-white/70 hover:text-white transition-colors"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
                             {step === 1 && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                     <div className="space-y-4">
@@ -1063,6 +1140,8 @@ const Locacoes = () => {
                                 </button>
                             )}
                         </div>
+                    </>
+                )}
                     </div>
                 </div>
             )}
@@ -1097,6 +1176,13 @@ const Locacoes = () => {
                     </div>
                 </div>
             )}
+
+            <Toast 
+                isOpen={copied} 
+                onClose={() => setCopied(false)} 
+                message="Link copiado!" 
+                type="success"
+            />
 
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }

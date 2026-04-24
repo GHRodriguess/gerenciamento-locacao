@@ -8,11 +8,16 @@ import Brinquedos from "./locacoes/Brinquedos.jsx";
 import Clientes from "./locacoes/Clientes.jsx";
 import Locacoes from "./locacoes/Locacoes.jsx";
 import Dashboard from "./locacoes/Dashbord.jsx";
+import PublicLocacao from "./locacoes/PublicLocacao.jsx";
 
 const router = createBrowserRouter([
     {
         path: "/login",
         element: <Login />,
+    },
+    {
+        path: "/locacao/:uuid",
+        element: <PublicLocacao />,
     },
     {
         path: "/logout",

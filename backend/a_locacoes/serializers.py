@@ -14,6 +14,15 @@ class EnderecoSerializer(serializers.ModelSerializer):
         model = Endereco
         fields = ['rua', 'numero', 'cidade']
 
+class PublicLocacaoSerializer(serializers.ModelSerializer):
+    brinquedos = BrinquedoSerializer(source='brinquedo', many=True, read_only=True)
+    endereco = EnderecoSerializer()
+    cliente = ClienteSerializer(read_only=True)
+
+    class Meta:
+        model = Locacao
+        fields = ['id', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente', 'brinquedos', 'endereco']
+
 class LocacaoSerializer(serializers.ModelSerializer):
     brinquedos_ids  = serializers.ListField(child=serializers.IntegerField(), write_only=True) 
     brinquedos = BrinquedoSerializer(source='brinquedo', many=True, read_only=True)
@@ -30,8 +39,8 @@ class LocacaoSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = Locacao
-        read_only_fields = ["criado_por"]
-        fields = ['id', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco', "criado_por", "cancelada"]
+        read_only_fields = ["criado_por", "uuid_publico"]
+        fields = ['id', 'uuid_publico', 'data_locacao', 'data_montagem', 'data_devolucao', 'valor_total', 'cliente_id','cliente', 'brinquedos_ids', 'brinquedos', 'endereco', "criado_por", "cancelada"]
         
     def create(self, validated_data):
         brinquedos_ids = validated_data.pop('brinquedos_ids')
@@ -85,4 +94,3 @@ class LocacaoSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-            

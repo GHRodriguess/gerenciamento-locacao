@@ -5,10 +5,14 @@ from .models import Cliente
 from .serializers import ClienteSerializer
 from a_locacoes.serializers import LocacaoSerializer
 from django.db.models.deletion import ProtectedError
+from django.db.models.functions import Lower
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
     serializer_class = ClienteSerializer
+    
+    def get_queryset(self):
+        return Cliente.objects.order_by(Lower('nome'))
     
     def destroy(self, request, *args, **kwargs):
         cliente = self.get_object()
@@ -29,6 +33,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def locacoes(self, request, pk=None):
         cliente = self.get_object()
-        locacoes = cliente.locacoes.all()
+        locacoes = cliente.locacoes.filter(cancelada=False)
         serializer = LocacaoSerializer(locacoes, many=True)
         return Response(serializer.data)

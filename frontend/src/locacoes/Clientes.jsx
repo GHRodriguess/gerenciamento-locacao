@@ -46,7 +46,12 @@ const Clientes = () => {
             );
             if (response.ok) {
                 const data = await response.json();
-                setClientes(data);
+                const sortedData = data.sort((a, b) =>
+                    a.nome.localeCompare(b.nome, "pt-BR", {
+                        sensitivity: "base",
+                    }),
+                );
+                setClientes(sortedData);
             }
         } catch (error) {
             console.error("Erro ao buscar clientes:", error);

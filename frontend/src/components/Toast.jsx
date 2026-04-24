@@ -29,12 +29,11 @@ const Toast = ({
             <div
                 className={`${bgColors[type]} text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-75 justify-center`}
             >
-                {type === "success" && <span>✅</span>}
                 {type === "error" && <span>⚠️</span>}
                 <p className="font-semibold">{message}</p>
                 <button
                     onClick={onClose}
-                    className="ml-4 opacity-70 hover:opacity-100"
+                    className="ml-auto opacity-70 hover:opacity-100"
                 >
                     ✕
                 </button>

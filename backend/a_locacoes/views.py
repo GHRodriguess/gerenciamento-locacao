@@ -1,8 +1,11 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import Locacao
-from .serializers import LocacaoSerializer
+from .serializers import LocacaoSerializer, PublicLocacaoSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from django.shortcuts import get_object_or_404
 
 class LocacaoViewSet(viewsets.ModelViewSet):
     queryset = Locacao.objects.all()
@@ -26,3 +29,11 @@ class LocacaoViewSet(viewsets.ModelViewSet):
         locacao.cancelada = False
         locacao.save()
         return Response({"status": "Locação restaurada"})
+
+class PublicLocacaoAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request, uuid):
+        locacao = get_object_or_404(Locacao, uuid_publico=uuid)
+        serializer = PublicLocacaoSerializer(locacao)
+        return Response(serializer.data)
