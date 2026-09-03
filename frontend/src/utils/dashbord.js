@@ -12,17 +12,18 @@ export const getTopClients = (data) => {
 };
 
 export const getMonthlyStats = (data) => {
-        const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const stats = {};
-        data.filter(l => !l.cancelada).forEach(loc => {
-            const date = new Date(loc.data_montagem);
-            const mName = months[date.getMonth()];
-            if (!stats[mName]) stats[mName] = { name: mName, rendimento: 0, total: 0 };
-            stats[mName].rendimento += parseFloat(loc.valor_total);
-            stats[mName].total += 1;
-        });
-        return Object.values(stats);
-    };
+    const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const stats = {};
+    data.filter(l => !l.cancelada).forEach(loc => {
+        const date = new Date(loc.data_montagem);
+        const monthIndex = date.getMonth();
+        const mName = months[monthIndex];
+        if (!stats[monthIndex]) stats[monthIndex] = { monthIndex, name: mName, rendimento: 0, total: 0 };
+        stats[monthIndex].rendimento += parseFloat(loc.valor_total);
+        stats[monthIndex].total += 1;
+    });
+    return Object.values(stats).sort((a, b) => a.monthIndex - b.monthIndex);
+};
 
 export const getToyStats = (data) => {
     const toyCounts = {};

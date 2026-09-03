@@ -169,7 +169,7 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {getMonthlyStats(data).reverse().map((m, i) => (
+                                {getMonthlyStats(data).map((m, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="py-4 text-zinc-200">{m.name}</td>
                                         <td className="py-4 text-right text-zinc-400 font-mono">{m.total} loc.</td>

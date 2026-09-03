@@ -19,7 +19,7 @@ class LocacaoViewSet(viewsets.ModelViewSet):
         
     @action(detail=False, methods=["get"])
     def todas(self, request):
-        locacoes = Locacao.objects.all()
+        locacoes = Locacao.objects.all().order_by('data_montagem')
         serializer = self.get_serializer(locacoes, many=True)
         return Response(serializer.data)
     
