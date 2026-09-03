@@ -12,11 +12,11 @@ from a_users.serializers import UserSerializer
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Endereco
-        fields = ['rua', 'numero', 'cidade']
+        fields = ['id', 'rua', 'numero', 'cidade', 'bairro', 'estado', 'cep', 'complemento', 'latitude', 'longitude']
 
 class PublicLocacaoSerializer(serializers.ModelSerializer):
     brinquedos = BrinquedoSerializer(source='brinquedo', many=True, read_only=True)
-    endereco = EnderecoSerializer()
+    endereco = EnderecoSerializer(allow_null=True, required=False)
     cliente = ClienteSerializer(read_only=True)
 
     class Meta:
@@ -27,7 +27,7 @@ class LocacaoSerializer(serializers.ModelSerializer):
     brinquedos_ids  = serializers.ListField(child=serializers.IntegerField(), write_only=True) 
     brinquedos = BrinquedoSerializer(source='brinquedo', many=True, read_only=True)
     
-    endereco = EnderecoSerializer()
+    endereco = EnderecoSerializer(allow_null=True, required=False)
     cliente_id = serializers.PrimaryKeyRelatedField(
         queryset=Cliente.objects.all(),
         source='cliente',
@@ -44,11 +44,11 @@ class LocacaoSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
         brinquedos_ids = validated_data.pop('brinquedos_ids')
-        endereco_data = validated_data.pop('endereco')
+        endereco_data = validated_data.pop('endereco', None)
         
         try:
             with transaction.atomic():
-                endereco = Endereco.objects.create(**endereco_data)                
+                endereco = Endereco.objects.create(**endereco_data) if endereco_data else None              
                 locacao = Locacao.objects.create(endereco=endereco, **validated_data)
                 
                 for brinquedo_id in brinquedos_ids:
@@ -70,17 +70,23 @@ class LocacaoSerializer(serializers.ModelSerializer):
         return locacao
 
     def update(self, instance, validated_data):
-        endereco_data = validated_data.pop('endereco', None)
+        tem_endereco = 'endereco' in validated_data
+        endereco_data = validated_data.pop('endereco', None) if tem_endereco else None
         brinquedos_ids = validated_data.pop('brinquedos_ids', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        if endereco_data:
-            endereco = instance.endereco
-            for attr, value in endereco_data.items():
-                setattr(endereco, attr, value)
-            endereco.save()
+        if tem_endereco:
+            if endereco_data is None:
+                instance.endereco = None
+            elif instance.endereco:
+                endereco = instance.endereco
+                for attr, value in endereco_data.items():
+                    setattr(endereco, attr, value)
+                endereco.save()
+            else:
+                instance.endereco = Endereco.objects.create(**endereco_data)
 
         if brinquedos_ids is not None:
             instance.itemlocacao_set.all().delete()

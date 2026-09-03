@@ -20,12 +20,16 @@ export interface Brinquedo {
 }
 
 export interface Endereco {
+  id?: number;
   rua: string;
   numero: string;
   cidade: string;
   bairro?: string;
   estado?: string;
+  cep?: string;
   complemento?: string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
 }
 
 export interface Locacao {
@@ -36,7 +40,7 @@ export interface Locacao {
   data_devolucao: string;
   valor_total: string | number;
   brinquedos: Brinquedo[];
-  endereco: Endereco;
+  endereco: Endereco | null;
   cancelada?: boolean;
   criado_por?: {
     id: number;
@@ -58,7 +62,10 @@ export interface LocacaoFormData {
     cidade: string;
     bairro?: string;
     estado?: string;
+    cep?: string;
     complemento?: string;
+    latitude?: number | string | null;
+    longitude?: number | string | null;
   };
 }
 

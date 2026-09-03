@@ -19,6 +19,7 @@ import { Locacao } from "@/types";
 import { formatCurrency, formatTitleCase, formatDateTimeBR } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardContent } from "@/components/ui/card";
+import { RouteButton } from "@/components/map/route-button";
 
 interface PublicLocacaoProps {
   params: Promise<{
@@ -156,27 +157,51 @@ export default function PublicLocacaoPage({ params }: PublicLocacaoProps) {
               </div>
 
               {/* Local */}
-              <div className="bg-muted/40 p-5 rounded-3xl border border-border/50 space-y-3">
-                <div className="flex items-center gap-2 text-rose-500">
-                  <MapPin size={18} />
-                  <p className="text-xs font-bold uppercase tracking-wider">
-                    Local do Evento
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="font-bold text-foreground text-sm leading-relaxed">
-                    {locacao.endereco.rua}, {locacao.endereco.numero}
-                  </p>
-                  <p className="text-muted-foreground text-xs font-medium uppercase">
-                    {locacao.endereco.bairro ? `${locacao.endereco.bairro} - ` : ""}
-                    {locacao.endereco.cidade}
-                  </p>
-                  {locacao.endereco.complemento && (
-                    <p className="text-xs text-muted-foreground italic">
-                      Obs: {locacao.endereco.complemento}
+              <div className="bg-muted/40 p-5 rounded-3xl border border-border/50 space-y-3 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-rose-500">
+                    <MapPin size={18} />
+                    <p className="text-xs font-bold uppercase tracking-wider">
+                      Local do Evento
                     </p>
+                  </div>
+                  {locacao.endereco && locacao.endereco.rua ? (
+                    <div className="space-y-1">
+                      <p className="font-bold text-foreground text-sm leading-relaxed">
+                        {locacao.endereco.rua}, {locacao.endereco.numero}
+                      </p>
+                      <p className="text-muted-foreground text-xs font-medium uppercase">
+                        {locacao.endereco.bairro ? `${locacao.endereco.bairro} - ` : ""}
+                        {locacao.endereco.cidade}
+                      </p>
+                      {locacao.endereco.complemento && (
+                        <p className="text-xs text-muted-foreground italic">
+                          Obs: {locacao.endereco.complemento}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="font-bold text-amber-500 text-sm leading-relaxed">
+                        Endereço a definir
+                      </p>
+                      <p className="text-muted-foreground text-xs font-medium">
+                        O local de montagem será combinado diretamente com a equipe.
+                      </p>
+                    </div>
                   )}
                 </div>
+
+                {locacao.endereco && locacao.endereco.rua && (
+                  <div className="pt-2 border-t border-border/60">
+                    <RouteButton
+                      endereco={locacao.endereco}
+                      variant="indigo"
+                      size="sm"
+                      className="w-full rounded-xl font-bold"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

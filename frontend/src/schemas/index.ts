@@ -48,14 +48,17 @@ export const locacaoSchema = z.object({
   data_devolucao: z.string().min(1, "Data de devolução é obrigatória"),
   valor_total: z.string().min(1, "Informe o valor total da locação"),
   brinquedos_ids: z.array(z.number()).min(1, "Selecione pelo menos um brinquedo"),
-  endereco: z.object({
-    rua: z.string().min(1, "Rua é obrigatória"),
-    numero: z.string().min(1, "Número é obrigatório"),
-    cidade: z.string().min(1, "Cidade é obrigatória"),
-    bairro: z.string().optional(),
-    estado: z.string().optional(),
-    complemento: z.string().optional(),
-  }),
+  endereco: z
+    .object({
+      rua: z.string().min(1, "Rua é obrigatória"),
+      numero: z.string().min(1, "Número é obrigatório"),
+      cidade: z.string().min(1, "Cidade é obrigatória"),
+      bairro: z.string().optional(),
+      estado: z.string().optional(),
+      complemento: z.string().optional(),
+    })
+    .nullable()
+    .optional(),
 });
 
 export type LocacaoSchemaType = z.infer<typeof locacaoSchema>;

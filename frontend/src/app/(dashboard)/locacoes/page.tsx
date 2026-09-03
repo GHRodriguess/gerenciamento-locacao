@@ -26,6 +26,7 @@ import {
   Loader2,
   ArrowRight,
   ArrowLeft,
+  MapPinOff,
 } from "lucide-react";
 import authFetch from "@/lib/api";
 import { Locacao, Cliente, Brinquedo, LocacaoFormData } from "@/types";
@@ -42,6 +43,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DynamicLocationPickerMap } from "@/components/map/dynamic-location-picker";
+import { RouteButton } from "@/components/map/route-button";
+import { fetchAddressByCep, geocodeAddress, geocodeFullAddress } from "@/lib/geo";
 import {
   Dialog,
   DialogContent,
@@ -54,7 +58,7 @@ export default function LocacoesPage() {
   const [locacoes, setLocacoes] = useState<Locacao[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [brinquedos, setBrinquedos] = useState<Brinquedo[]>([]);
-  const [view, setView] = useState<"futuras" | "ativas" | "canceladas">("futuras");
+  const [view, setView] = useState<"futuras" | "ativas" | "canceladas" | "sem_endereco">("futuras");
 
   const [step, setStep] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,12 +71,16 @@ export default function LocacoesPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [semEndereco, setSemEndereco] = useState(false);
 
   const [showQuickClient, setShowQuickClient] = useState(false);
   const [quickClient, setQuickClient] = useState({
     nome: "",
     numero_celular: "",
   });
+
+  const [loadingCep, setLoadingCep] = useState(false);
+  const [geocodingMap, setGeocodingMap] = useState(false);
 
   const initialForm: LocacaoFormData = {
     cliente_id: "",
@@ -86,7 +94,10 @@ export default function LocacoesPage() {
       cidade: "",
       bairro: "",
       estado: "PR",
+      cep: "",
       complemento: "",
+      latitude: null,
+      longitude: null,
     },
   };
 
@@ -175,6 +186,9 @@ export default function LocacoesPage() {
     if (loc.cancelada === true) {
       return false;
     }
+    if (view === "sem_endereco") {
+      return !loc.endereco || !loc.endereco.rua;
+    }
     if (view === "ativas") {
       return true;
     }
@@ -197,6 +211,8 @@ export default function LocacoesPage() {
     if (locacao) {
       setIsEditing(true);
       setCurrentId(locacao.id);
+      const isSemEnd = !locacao.endereco || !locacao.endereco.rua;
+      setSemEndereco(isSemEnd);
       setFormData({
         cliente_id: locacao.cliente.id,
         data_montagem: locacao.data_montagem
@@ -215,15 +231,123 @@ export default function LocacoesPage() {
           cidade: locacao.endereco?.cidade || "",
           bairro: locacao.endereco?.bairro || "",
           estado: locacao.endereco?.estado || "PR",
+          cep: locacao.endereco?.cep || "",
           complemento: locacao.endereco?.complemento || "",
+          latitude: locacao.endereco?.latitude ?? null,
+          longitude: locacao.endereco?.longitude ?? null,
         },
       });
     } else {
       setIsEditing(false);
       setCurrentId(null);
+      setSemEndereco(false);
       setFormData(initialForm);
     }
     setIsModalOpen(true);
+  };
+
+  const autoGeocodeAddress = async (enderecoData: typeof formData.endereco) => {
+    if (!enderecoData.rua || enderecoData.rua.trim().length < 3 || !enderecoData.cidade) return;
+    setGeocodingMap(true);
+    const geo = await geocodeFullAddress(enderecoData);
+    setGeocodingMap(false);
+    if (geo) {
+      setFormData((prev) => ({
+        ...prev,
+        endereco: {
+          ...prev.endereco,
+          latitude: geo.lat,
+          longitude: geo.lng,
+        },
+      }));
+    }
+  };
+
+  // Busca automática de coordenadas com base em Rua, Número, Bairro, Cidade
+  useEffect(() => {
+    if (step !== 4) return;
+    const { rua, cidade } = formData.endereco;
+    if (!rua || rua.trim().length < 3 || !cidade) return;
+
+    const timer = setTimeout(() => {
+      autoGeocodeAddress(formData.endereco);
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [
+    step,
+    formData.endereco.rua,
+    formData.endereco.numero,
+    formData.endereco.bairro,
+    formData.endereco.cidade,
+    formData.endereco.estado,
+  ]);
+
+  const handleCepSearch = async (cepInput: string) => {
+    const clean = cepInput.replace(/\D/g, "");
+    if (clean.length === 8) {
+      setLoadingCep(true);
+      const data = await fetchAddressByCep(clean);
+      setLoadingCep(false);
+      if (data) {
+        const newAddress = {
+          ...formData.endereco,
+          cep: data.cep,
+          rua: data.logradouro || formData.endereco.rua,
+          bairro: data.bairro || formData.endereco.bairro,
+          cidade: data.localidade || formData.endereco.cidade,
+          estado: data.uf || formData.endereco.estado,
+        };
+
+        setFormData({
+          ...formData,
+          endereco: newAddress,
+        });
+
+        // Tenta geocodificar com número se já existir
+        const geo = await geocodeFullAddress(newAddress);
+        if (geo) {
+          setFormData((prev) => ({
+            ...prev,
+            endereco: {
+              ...prev.endereco,
+              latitude: geo.lat,
+              longitude: geo.lng,
+            },
+          }));
+        }
+
+        toast.success("Endereço encontrado pelo CEP!");
+      } else {
+        toast.error("CEP não encontrado.");
+      }
+    }
+  };
+
+  const handleGeocodeAddress = async () => {
+    const { rua, cidade } = formData.endereco;
+    if (!rua || !cidade) {
+      toast.error("Preencha ao menos a rua e a cidade para localizar.");
+      return;
+    }
+
+    setGeocodingMap(true);
+    const geo = await geocodeFullAddress(formData.endereco);
+    setGeocodingMap(false);
+
+    if (geo) {
+      setFormData({
+        ...formData,
+        endereco: {
+          ...formData.endereco,
+          latitude: geo.lat,
+          longitude: geo.lng,
+        },
+      });
+      toast.success("Localização atualizada no mapa!");
+    } else {
+      toast.error("Não foi possível localizar o endereço no mapa. Arraste o pin manualmente.");
+    }
   };
 
   const handleCopyLink = (uuid: string) => {
@@ -235,6 +359,15 @@ export default function LocacoesPage() {
   const handleNextStep = () => {
     if (step === 1 && (!formData.cliente_id || !formData.valor_total)) return;
     if (step === 2 && (!formData.data_montagem || !formData.data_devolucao))
+      return;
+    if (step === 3 && formData.brinquedos_ids.length === 0) return;
+    if (
+      step === 4 &&
+      !semEndereco &&
+      (!formData.endereco.rua ||
+        !formData.endereco.numero ||
+        !formData.endereco.cidade)
+    )
       return;
     setStep((s) => s + 1);
   };
@@ -277,10 +410,15 @@ export default function LocacoesPage() {
     const method = isEditing ? "PATCH" : "POST";
     const url = isEditing ? `/locacoes/${currentId}/` : "/locacoes/";
 
+    const payload = {
+      ...formData,
+      endereco: semEndereco ? null : formData.endereco,
+    };
+
     try {
       const response = await authFetch(url, {
         method,
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -365,7 +503,7 @@ export default function LocacoesPage() {
       <main className="p-4 sm:p-8 max-w-5xl mx-auto w-full space-y-6 animate-in fade-in duration-300">
         {/* Navigation Tabs and Create Button */}
         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-          <div className="flex p-1.5 bg-muted/60 border border-border/70 rounded-2xl max-w-md w-full">
+          <div className="flex p-1.5 bg-muted/60 border border-border/70 rounded-2xl max-w-lg w-full">
             <button
               onClick={() => setView("futuras")}
               className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
@@ -385,6 +523,16 @@ export default function LocacoesPage() {
               }`}
             >
               <History className="h-4 w-4" /> Histórico
+            </button>
+            <button
+              onClick={() => setView("sem_endereco")}
+              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                view === "sem_endereco"
+                  ? "bg-amber-500 text-white shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <MapPinOff className="h-4 w-4" /> Pendentes
             </button>
             <button
               onClick={() => setView("canceladas")}
@@ -460,15 +608,23 @@ export default function LocacoesPage() {
 
                       {/* Local */}
                       <div className="flex items-center gap-3 bg-muted/40 p-3 rounded-2xl border border-border/50">
-                        <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
-                        <div className="truncate">
+                        <MapPin className={`h-4 w-4 shrink-0 ${loc.endereco?.rua ? "text-rose-500" : "text-amber-500"}`} />
+                        <div className="truncate flex-1">
                           <p className="text-[10px] uppercase font-bold text-muted-foreground">
                             Local
                           </p>
-                          <p className="font-medium text-foreground truncate">
-                            {loc.endereco?.rua}, {loc.endereco?.numero} •{" "}
-                            {loc.endereco?.cidade}
-                          </p>
+                          {loc.endereco?.rua ? (
+                            <p className="font-medium text-foreground truncate">
+                              {loc.endereco.rua}, {loc.endereco.numero} •{" "}
+                              {loc.endereco.cidade}
+                            </p>
+                          ) : (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                Endereço a definir
+                              </Badge>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -504,6 +660,15 @@ export default function LocacoesPage() {
                       </Button>
                     ) : (
                       <>
+                        {loc.endereco?.rua && (
+                          <RouteButton
+                            endereco={loc.endereco}
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 text-indigo-500 hover:bg-indigo-500/10 rounded-xl"
+                            showText={false}
+                          />
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
@@ -901,95 +1066,280 @@ export default function LocacoesPage() {
                   </div>
                 )}
 
-                {/* PASSO 4: Endereço do Evento */}
+                {/* PASSO 4: Endereço e Mapa do Evento */}
                 {step === 4 && (
-                  <div className="space-y-6 animate-in fade-in">
-                    <div className="space-y-1">
-                      <h3 className="text-lg font-bold flex items-center gap-2 text-foreground">
-                        <MapPin className="h-5 w-5 text-rose-500" /> Endereço do
-                        Evento
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        Local onde os brinquedos serão montados.
-                      </p>
+                  <div className="space-y-5 animate-in fade-in">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                      <div className="space-y-0.5">
+                        <h3 className="text-lg font-bold flex items-center gap-2 text-foreground">
+                          <MapPin className="h-5 w-5 text-rose-500" /> Endereço do Evento
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          Informe o endereço e ajuste o ponto no mapa para o GPS.
+                        </p>
+                      </div>
+                      {!semEndereco && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGeocodeAddress}
+                          disabled={geocodingMap}
+                          className="text-xs font-bold border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10 h-8 rounded-xl shrink-0"
+                        >
+                          {geocodingMap ? (
+                            <span className="flex items-center gap-1.5">
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Buscando...
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1.5">
+                              <Search className="h-3.5 w-3.5" /> Localizar no Mapa
+                            </span>
+                          )}
+                        </Button>
+                      )}
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="rua">Rua / Logradouro</Label>
-                        <Input
-                          id="rua"
-                          placeholder="Ex: Rua das Flores"
-                          value={formData.endereco.rua}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              endereco: {
-                                ...formData.endereco,
-                                rua: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="numero">Número</Label>
-                          <Input
-                            id="numero"
-                            placeholder="Ex: 123"
-                            value={formData.endereco.numero}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                endereco: {
-                                  ...formData.endereco,
-                                  numero: e.target.value,
-                                },
-                              })
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cidade">Cidade</Label>
-                          <Input
-                            id="cidade"
-                            placeholder="Ex: Curitiba"
-                            value={formData.endereco.cidade}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                endereco: {
-                                  ...formData.endereco,
-                                  cidade: e.target.value,
-                                },
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="complemento">
-                          Complemento / Ponto de Referência (Opcional)
+                    {/* Checkbox / Switch: Endereço a Definir */}
+                    <div
+                      className="flex items-center space-x-3 p-4 bg-amber-500/10 dark:bg-amber-500/15 rounded-2xl border border-amber-500/30 cursor-pointer transition-all hover:bg-amber-500/15"
+                      onClick={() => setSemEndereco(!semEndereco)}
+                    >
+                      <Checkbox
+                        id="sem-endereco"
+                        checked={semEndereco}
+                        onCheckedChange={(checked) => setSemEndereco(checked === true)}
+                        className="data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 border-amber-500/60"
+                      />
+                      <div className="space-y-0.5">
+                        <Label
+                          htmlFor="sem-endereco"
+                          className="text-sm font-bold text-foreground cursor-pointer flex items-center gap-2"
+                        >
+                          <MapPinOff className="h-4 w-4 text-amber-500" />
+                          Definir endereço mais tarde (A combinar)
                         </Label>
-                        <Input
-                          id="complemento"
-                          placeholder="Ex: Salão de festas do condomínio"
-                          value={formData.endereco.complemento}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              endereco: {
-                                ...formData.endereco,
-                                complemento: e.target.value,
-                              },
-                            })
-                          }
-                        />
+                        <p className="text-xs text-muted-foreground">
+                          Marque caso o endereço ainda não esteja definido. Você poderá preenchê-lo depois.
+                        </p>
                       </div>
                     </div>
+
+                    {semEndereco ? (
+                      <div className="py-12 px-6 text-center bg-muted/20 border-2 border-dashed border-border/80 rounded-3xl space-y-3">
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          <MapPinOff size={28} />
+                        </div>
+                        <h4 className="text-base font-bold text-foreground">
+                          Endereço pendente / A combinar
+                        </h4>
+                        <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                          A locação será cadastrada com status de <strong>Endereço a definir</strong>. Você poderá editar esta locação e cadastrar o endereço completo quando o cliente confirmar.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* Linha 1: CEP e Bairro */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="cep" className="text-xs font-semibold">
+                              CEP (Opcional)
+                            </Label>
+                            <div className="relative">
+                              <Input
+                                id="cep"
+                                placeholder="00000-000"
+                                value={formData.endereco.cep || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData({
+                                    ...formData,
+                                    endereco: {
+                                      ...formData.endereco,
+                                      cep: val,
+                                    },
+                                  });
+                                  if (val.replace(/\D/g, "").length === 8) {
+                                    handleCepSearch(val);
+                                  }
+                                }}
+                              />
+                              {loadingCep && (
+                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-indigo-500" />
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="sm:col-span-2 space-y-1.5">
+                            <Label htmlFor="rua" className="text-xs font-semibold">
+                              Rua / Logradouro *
+                            </Label>
+                            <Input
+                              id="rua"
+                              placeholder="Ex: Av. Brasil"
+                              value={formData.endereco.rua}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  endereco: {
+                                    ...formData.endereco,
+                                    rua: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        {/* Linha 2: Número, Bairro, Cidade, Estado */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="numero" className="text-xs font-semibold">
+                              Número *
+                            </Label>
+                            <Input
+                              id="numero"
+                              placeholder="Ex: 123"
+                              value={formData.endereco.numero}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  endereco: {
+                                    ...formData.endereco,
+                                    numero: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="bairro" className="text-xs font-semibold">
+                              Bairro
+                            </Label>
+                            <Input
+                              id="bairro"
+                              placeholder="Ex: Centro"
+                              value={formData.endereco.bairro || ""}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  endereco: {
+                                    ...formData.endereco,
+                                    bairro: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="cidade" className="text-xs font-semibold">
+                              Cidade *
+                            </Label>
+                            <Input
+                              id="cidade"
+                              placeholder="Ex: Maringá"
+                              value={formData.endereco.cidade}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  endereco: {
+                                    ...formData.endereco,
+                                    cidade: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="estado" className="text-xs font-semibold">
+                              UF
+                            </Label>
+                            <Input
+                              id="estado"
+                              maxLength={2}
+                              placeholder="PR"
+                              value={formData.endereco.estado || "PR"}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  endereco: {
+                                    ...formData.endereco,
+                                    estado: e.target.value.toUpperCase(),
+                                  },
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        {/* Linha 3: Complemento */}
+                        <div className="space-y-1.5">
+                          <Label htmlFor="complemento" className="text-xs font-semibold">
+                            Complemento / Ponto de Referência (Opcional)
+                          </Label>
+                          <Input
+                            id="complemento"
+                            placeholder="Ex: Salão de festas do condomínio, Bloco B"
+                            value={formData.endereco.complemento || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                endereco: {
+                                  ...formData.endereco,
+                                  complemento: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* Mapa Interativo de Seleção */}
+                        <div className="space-y-2 pt-1">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                              Ponto no Mapa & Coordenadas GPS
+                            </Label>
+                            {geocodingMap ? (
+                              <Badge variant="outline" className="text-[10px] text-indigo-500 border-indigo-500/40 bg-indigo-500/10 animate-pulse flex items-center gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin" /> Buscando coordenadas automáticas...
+                              </Badge>
+                            ) : formData.endereco.latitude && formData.endereco.longitude ? (
+                              <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/30 bg-emerald-500/10">
+                                ✓ Localizado: {formData.endereco.rua ? `${formData.endereco.rua}${formData.endereco.numero ? `, nº ${formData.endereco.numero}` : ""}` : "Coordenadas vinculadas"}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                                Preencha o endereço para buscar o GPS
+                              </Badge>
+                            )}
+                          </div>
+
+                          <DynamicLocationPickerMap
+                            latitude={formData.endereco.latitude}
+                            longitude={formData.endereco.longitude}
+                            height="260px"
+                            onChangeLocation={(coords) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                endereco: {
+                                  ...prev.endereco,
+                                  latitude: coords.latitude,
+                                  longitude: coords.longitude,
+                                  rua: prev.endereco.rua || coords.reverseAddress?.rua || prev.endereco.rua,
+                                  bairro: prev.endereco.bairro || coords.reverseAddress?.bairro || prev.endereco.bairro,
+                                  cidade: prev.endereco.cidade || coords.reverseAddress?.cidade || prev.endereco.cidade,
+                                  estado: prev.endereco.estado || coords.reverseAddress?.estado || prev.endereco.estado,
+                                  cep: prev.endereco.cep || coords.reverseAddress?.cep || prev.endereco.cep,
+                                },
+                              }));
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1027,8 +1377,13 @@ export default function LocacoesPage() {
                       <div className="flex justify-between border-b border-border/70 pb-3 text-sm">
                         <span className="text-muted-foreground">Local:</span>
                         <span className="font-medium text-foreground text-right">
-                          {formData.endereco.rua}, {formData.endereco.numero} •{" "}
-                          {formData.endereco.cidade}
+                          {semEndereco ? (
+                            <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-xs font-bold">
+                              Endereço a definir
+                            </Badge>
+                          ) : (
+                            `${formData.endereco.rua}, ${formData.endereco.numero} • ${formData.endereco.cidade}`
+                          )}
                         </span>
                       </div>
 
@@ -1098,6 +1453,7 @@ export default function LocacoesPage() {
                         (!formData.data_montagem || !formData.data_devolucao)) ||
                       (step === 3 && formData.brinquedos_ids.length === 0) ||
                       (step === 4 &&
+                        !semEndereco &&
                         (!formData.endereco.rua ||
                           !formData.endereco.numero ||
                           !formData.endereco.cidade))

@@ -201,8 +201,13 @@ export default function HomePage() {
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
-                          {loc.endereco.rua}, {loc.endereco.numero} •{" "}
-                          {loc.endereco.cidade}
+                          {loc.endereco?.rua ? (
+                            `${loc.endereco.rua}, ${loc.endereco.numero} • ${loc.endereco.cidade}`
+                          ) : (
+                            <span className="text-amber-500 font-semibold">
+                              Endereço a definir
+                            </span>
+                          )}
                         </p>
                         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                           <Clock className="h-3 w-3 text-indigo-500" />
@@ -420,18 +425,26 @@ export default function HomePage() {
               {/* Endereço */}
               <div className="space-y-1.5 bg-muted/40 p-4 rounded-2xl border border-border/50">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-rose-500" /> Local de
+                  <MapPin className={`h-3.5 w-3.5 ${selectedLoc.endereco?.rua ? "text-rose-500" : "text-amber-500"}`} /> Local de
                   Montagem
                 </p>
-                <p className="text-sm font-bold text-foreground">
-                  {selectedLoc.endereco.rua}, {selectedLoc.endereco.numero}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {selectedLoc.endereco.bairro
-                    ? `${selectedLoc.endereco.bairro}, `
-                    : ""}
-                  {selectedLoc.endereco.cidade}
-                </p>
+                {selectedLoc.endereco?.rua ? (
+                  <>
+                    <p className="text-sm font-bold text-foreground">
+                      {selectedLoc.endereco.rua}, {selectedLoc.endereco.numero}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedLoc.endereco.bairro
+                        ? `${selectedLoc.endereco.bairro}, `
+                        : ""}
+                      {selectedLoc.endereco.cidade}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm font-bold text-amber-500">
+                    Endereço a definir
+                  </p>
+                )}
               </div>
 
               {/* Horários */}
@@ -522,7 +535,9 @@ export default function HomePage() {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">
-                    {loc.endereco.rua}, {loc.endereco.numero}
+                    {loc.endereco?.rua
+                      ? `${loc.endereco.rua}, ${loc.endereco.numero}`
+                      : "Endereço a definir"}
                   </p>
                   <div className="flex justify-between text-[11px] font-medium pt-1 border-t border-border/40">
                     <span className="text-indigo-500">

@@ -7,6 +7,7 @@ import {
   Home,
   BarChart3,
   CalendarDays,
+  MapPin,
   Users,
   Castle,
   UserCheck,
@@ -32,6 +33,11 @@ const navItems = [
     title: "Locações",
     href: "/locacoes",
     icon: CalendarDays,
+  },
+  {
+    title: "Mapa de Entregas",
+    href: "/mapa",
+    icon: MapPin,
   },
   {
     title: "Clientes",
