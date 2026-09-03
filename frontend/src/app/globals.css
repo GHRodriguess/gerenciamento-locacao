@@ -30,33 +30,59 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 1rem;
+
+    /* Indigo palette in light mode */
+    --indigo-50: 226 100% 97%;
+    --indigo-100: 226 100% 94%;
+    --indigo-200: 228 96% 89%;
+    --indigo-300: 232 97% 82%;
+    --indigo-400: 235 94% 74%;
+    --indigo-500: 239 84% 67%;
+    --indigo-600: 243 75% 59%;
+    --indigo-700: 245 58% 51%;
+    --indigo-800: 244 55% 41%;
+    --indigo-900: 242 47% 34%;
+    --indigo-950: 244 47% 20%;
   }
 
   .dark {
-    --background: 224 35% 8%;
-    --foreground: 210 40% 98%;
-    --card: 224 32% 12%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 32% 12%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 238.7 83.5% 66.7%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 0 0% 3.5%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 0 0% 13%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 22%;
-    --input: 217.2 32.6% 22%;
-    --ring: 238.7 83.5% 66.7%;
-    --chart-1: 220 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 217.2 91.2% 59.8%;
+    --chart-1: 217.2 91.2% 59.8%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Indigo palette in dark mode (mapped to vibrant blue) */
+    --indigo-50: 214 100% 97%;
+    --indigo-100: 214 95% 93%;
+    --indigo-200: 213 97% 87%;
+    --indigo-300: 212 96% 78%;
+    --indigo-400: 213 94% 68%;
+    --indigo-500: 217.2 91.2% 59.8%;
+    --indigo-600: 221.2 83.2% 53.3%;
+    --indigo-700: 224.3 76.3% 48%;
+    --indigo-800: 225.9 70.7% 40.2%;
+    --indigo-900: 224.4 64.3% 32.9%;
+    --indigo-950: 226 57% 21%;
   }
 }
 
