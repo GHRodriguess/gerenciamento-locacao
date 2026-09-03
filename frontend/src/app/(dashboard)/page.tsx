@@ -20,7 +20,15 @@ import {
 import authFetch from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Locacao } from "@/types";
-import { formatCurrency, formatTitleCase, formatDateTimeBR } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatTitleCase,
+  formatDateTimeBR,
+  formatDateBadgeBR,
+  formatScheduleBR,
+  formatEventTimeBR,
+  isSameDay,
+} from "@/lib/utils";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -191,10 +199,7 @@ export default function HomePage() {
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
                           <Badge variant="info" className="shrink-0 whitespace-nowrap">
-                            {new Date(loc.data_montagem).toLocaleDateString(
-                              "pt-BR",
-                              { day: "2-digit", month: "short" }
-                            )}
+                            {formatDateBadgeBR(loc.data_montagem, loc.data_devolucao)}
                           </Badge>
                           <span
                             title={loc.cliente.nome}
@@ -214,16 +219,8 @@ export default function HomePage() {
                         </p>
                         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                           <Clock className="h-3 w-3 text-indigo-500 shrink-0" />
-                          <span className="truncate">
-                            {new Date(loc.data_montagem).toLocaleTimeString(
-                              "pt-BR",
-                              { hour: "2-digit", minute: "2-digit" }
-                            )}{" "}
-                            às{" "}
-                            {new Date(loc.data_devolucao).toLocaleTimeString(
-                              "pt-BR",
-                              { hour: "2-digit", minute: "2-digit" }
-                            )}
+                          <span className="truncate" title={formatScheduleBR(loc.data_montagem, loc.data_devolucao)}>
+                            {formatScheduleBR(loc.data_montagem, loc.data_devolucao)}
                           </span>
                         </div>
                       </div>
@@ -336,6 +333,8 @@ export default function HomePage() {
                         ${
                           possuiMontagem && !isHoje
                             ? "border border-indigo-500/40 bg-indigo-500/10 text-indigo-500 font-bold"
+                            : possuiDesmontagem && !isHoje
+                            ? "border border-rose-500/40 bg-rose-500/10 text-rose-500 font-bold"
                             : ""
                         }
                       `}
@@ -345,7 +344,7 @@ export default function HomePage() {
                         {possuiMontagem && (
                           <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                         )}
-                        {possuiDesmontagem && !possuiMontagem && (
+                        {possuiDesmontagem && (
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                         )}
                       </div>
@@ -545,22 +544,37 @@ export default function HomePage() {
                       ? `${loc.endereco.rua}, ${loc.endereco.numero}`
                       : "Endereço a definir"}
                   </p>
-                  <div className="flex justify-between text-[11px] font-medium pt-1 border-t border-border/40">
-                    <span className="text-indigo-500">
-                      Montagem:{" "}
-                      {new Date(loc.data_montagem).toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <span className="text-rose-500">
-                      Devolução:{" "}
-                      {new Date(loc.data_devolucao).toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
+                  {(() => {
+                    const isDifferent = !isSameDay(
+                      loc.data_montagem,
+                      loc.data_devolucao
+                    );
+                    const diffYear =
+                      isDifferent &&
+                      new Date(loc.data_montagem).getFullYear() !==
+                        new Date(loc.data_devolucao).getFullYear();
+
+                    return (
+                      <div className="flex items-center justify-between gap-2 flex-wrap text-[11px] font-medium pt-1 border-t border-border/40">
+                        <span className="text-indigo-500">
+                          Montagem:{" "}
+                          {formatEventTimeBR(
+                            loc.data_montagem,
+                            isDifferent,
+                            diffYear
+                          )}
+                        </span>
+                        <span className="text-rose-500">
+                          Devolução:{" "}
+                          {formatEventTimeBR(
+                            loc.data_devolucao,
+                            isDifferent,
+                            diffYear
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
               ))
             ) : (
