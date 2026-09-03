@@ -43,6 +43,7 @@
     --indigo-800: 244 55% 41%;
     --indigo-900: 242 47% 34%;
     --indigo-950: 244 47% 20%;
+    color-scheme: light;
   }
 
   .dark {
@@ -83,6 +84,7 @@
     --indigo-800: 225.9 70.7% 40.2%;
     --indigo-900: 224.4 64.3% 32.9%;
     --indigo-950: 226 57% 21%;
+    color-scheme: dark;
   }
 }
 
@@ -93,6 +95,18 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"] {
+    color-scheme: light;
+  }
+
+  .dark input[type="date"],
+  .dark input[type="datetime-local"],
+  .dark input[type="time"] {
+    color-scheme: dark;
   }
 }
 
@@ -113,4 +127,14 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.4);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

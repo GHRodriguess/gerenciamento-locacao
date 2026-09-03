@@ -503,46 +503,46 @@ export default function LocacoesPage() {
       <main className="p-4 sm:p-8 max-w-5xl mx-auto w-full space-y-6 animate-in fade-in duration-300">
         {/* Navigation Tabs and Create Button */}
         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-          <div className="flex p-1.5 bg-muted/60 border border-border/70 rounded-2xl max-w-lg w-full">
+          <div className="flex items-center gap-1 sm:gap-1.5 p-1.5 bg-muted/60 border border-border/70 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar">
             <button
               onClick={() => setView("futuras")}
-              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "futuras"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Calendar className="h-4 w-4" /> Próximas
+              <Calendar className="h-4 w-4 shrink-0" /> Próximas
             </button>
             <button
               onClick={() => setView("ativas")}
-              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "ativas"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <History className="h-4 w-4" /> Histórico
+              <History className="h-4 w-4 shrink-0" /> Histórico
             </button>
             <button
               onClick={() => setView("sem_endereco")}
-              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "sem_endereco"
                   ? "bg-amber-500 text-white shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <MapPinOff className="h-4 w-4" /> Pendentes
+              <MapPinOff className="h-4 w-4 shrink-0" /> Sem Endereço
             </button>
             <button
               onClick={() => setView("canceladas")}
-              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "canceladas"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Trash2 className="h-4 w-4" /> Canceladas
+              <Trash2 className="h-4 w-4 shrink-0" /> Canceladas
             </button>
           </div>
 
@@ -715,6 +715,8 @@ export default function LocacoesPage() {
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
               {view === "canceladas"
                 ? "Nenhuma locação foi cancelada até o momento."
+                : view === "sem_endereco"
+                ? "Nenhuma locação está com endereço pendente."
                 : "Não há registros correspondentes a esta categoria."}
             </p>
           </Card>

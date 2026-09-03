@@ -57,6 +57,8 @@ export default function BrinquedosPage() {
   const [brinquedoToDelete, setBrinquedoToDelete] = useState<Brinquedo | null>(null);
   const [dates, setDates] = useState({ inicio: "", fim: "" });
   const [dateError, setDateError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -85,6 +87,8 @@ export default function BrinquedosPage() {
       if (response.ok) {
         const data: Brinquedo[] = await response.json();
         setBrinquedos(data);
+      } else {
+        toast.error("Erro ao carregar lista de brinquedos.");
       }
     } catch (error) {
       console.error("Erro ao buscar brinquedos:", error);
@@ -98,26 +102,62 @@ export default function BrinquedosPage() {
     fetchBrinquedos();
   }, []);
 
-  const formatWithTimezone = (dateString: string) => {
-    if (!dateString) return "";
-    return `${dateString}:00-03:00`;
-  };
-
   const checkAvailability = async (e: React.FormEvent) => {
     e.preventDefault();
     setDateError("");
-    if (!dates.inicio || !dates.fim) return;
-
-    const inicioFormatado = formatWithTimezone(dates.inicio);
-    const fimFormatado = formatWithTimezone(dates.fim);
-
-    if (fimFormatado <= inicioFormatado) {
-      setDateError("A data de devolução deve ser posterior à data de montagem.");
+    if (!dates.inicio || !dates.fim) {
+      setDateError("Por favor, selecione as datas de início e fim.");
       return;
     }
 
-    const query = `/brinquedos/disponiveis/?inicio=${inicioFormatado}&fim=${fimFormatado}`;
-    fetchBrinquedos(query);
+    const inicioDate = new Date(dates.inicio);
+    const fimDate = new Date(dates.fim);
+
+    if (isNaN(inicioDate.getTime()) || isNaN(fimDate.getTime())) {
+      setDateError("Formato de data inválido.");
+      return;
+    }
+
+    if (fimDate <= inicioDate) {
+      setDateError("A data de término deve ser posterior à data de início.");
+      return;
+    }
+
+    setSearching(true);
+    setLoading(true);
+    try {
+      const inicioIso = inicioDate.toISOString();
+      const fimIso = fimDate.toISOString();
+      const query = `/brinquedos/disponiveis/?inicio=${encodeURIComponent(inicioIso)}&fim=${encodeURIComponent(fimIso)}`;
+
+      const response = await authFetch(query);
+      if (response.ok) {
+        const data: Brinquedo[] = await response.json();
+        setBrinquedos(data);
+        setHasSearched(true);
+        if (data.length === 0) {
+          toast.info("Nenhum brinquedo disponível para este período.");
+        } else {
+          toast.success(`${data.length} brinquedo(s) disponível(is) encontrado(s)!`);
+        }
+      } else {
+        const errData = await response.json().catch(() => null);
+        const errMsg =
+          errData?.non_field_errors?.[0] ||
+          errData?.inicio?.[0] ||
+          errData?.fim?.[0] ||
+          errData?.detail ||
+          "Erro ao consultar disponibilidade.";
+        setDateError(errMsg);
+        toast.error(errMsg);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar brinquedos:", error);
+      toast.error("Erro ao conectar com o servidor.");
+    } finally {
+      setLoading(false);
+      setSearching(false);
+    }
   };
 
   const onSubmit = async (data: BrinquedoFormData) => {
@@ -181,6 +221,8 @@ export default function BrinquedosPage() {
             <button
               onClick={() => {
                 setViewMode("todos");
+                setHasSearched(false);
+                setDateError("");
                 fetchBrinquedos("/brinquedos/");
               }}
               className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${
@@ -192,7 +234,11 @@ export default function BrinquedosPage() {
               Todos os Brinquedos
             </button>
             <button
-              onClick={() => setViewMode("disponibilidade")}
+              onClick={() => {
+                setViewMode("disponibilidade");
+                setHasSearched(false);
+                setDateError("");
+              }}
               className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${
                 viewMode === "disponibilidade"
                   ? "bg-primary text-primary-foreground shadow-md"
@@ -215,12 +261,12 @@ export default function BrinquedosPage() {
         {/* Disponibilidade Form */}
         {viewMode === "disponibilidade" && (
           <Card className="border-indigo-500/30 bg-indigo-500/5 animate-in slide-in-from-top-4 duration-300">
-            <CardContent className="p-6">
+            <CardContent className="p-5 sm:p-6">
               <form
                 onSubmit={checkAvailability}
                 className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end"
               >
-                <div className="sm:col-span-5 space-y-2">
+                <div className="sm:col-span-5 space-y-1.5">
                   <Label htmlFor="inicio" className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-indigo-500" /> Início do Evento
                   </Label>
@@ -228,12 +274,21 @@ export default function BrinquedosPage() {
                     id="inicio"
                     type="datetime-local"
                     value={dates.inicio}
-                    onChange={(e) => setDates({ ...dates, inicio: e.target.value })}
+                    onChange={(e) => {
+                      setDates({ ...dates, inicio: e.target.value });
+                      setDateError("");
+                    }}
                     required
+                    className="cursor-pointer"
                   />
+                  {!dates.inicio && (
+                    <span className="text-[11px] text-muted-foreground block">
+                      Toque para escolher data e horário
+                    </span>
+                  )}
                 </div>
 
-                <div className="sm:col-span-5 space-y-2">
+                <div className="sm:col-span-5 space-y-1.5">
                   <Label htmlFor="fim" className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-rose-500" /> Fim do Evento
                   </Label>
@@ -241,14 +296,35 @@ export default function BrinquedosPage() {
                     id="fim"
                     type="datetime-local"
                     value={dates.fim}
-                    onChange={(e) => setDates({ ...dates, fim: e.target.value })}
+                    onChange={(e) => {
+                      setDates({ ...dates, fim: e.target.value });
+                      setDateError("");
+                    }}
                     required
+                    className="cursor-pointer"
                   />
+                  {!dates.fim && (
+                    <span className="text-[11px] text-muted-foreground block">
+                      Toque para escolher data e horário
+                    </span>
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">
-                  <Button type="submit" variant="indigo" className="w-full h-11 rounded-xl font-bold">
-                    Consultar
+                  <Button
+                    type="submit"
+                    variant="indigo"
+                    disabled={loading || searching}
+                    className="w-full h-11 rounded-xl font-bold flex items-center justify-center gap-2"
+                  >
+                    {searching ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Buscando...</span>
+                      </>
+                    ) : (
+                      <span>Consultar</span>
+                    )}
                   </Button>
                 </div>
               </form>
@@ -263,13 +339,45 @@ export default function BrinquedosPage() {
           </Card>
         )}
 
-        {/* Brinquedos List */}
+        {/* Status banner when searched */}
+        {viewMode === "disponibilidade" && hasSearched && !loading && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>
+                Mostrando <strong>{brinquedos.length}</strong> brinquedo(s) disponível(is) para o período
+              </span>
+            </span>
+            <button
+              onClick={() => {
+                setViewMode("todos");
+                setHasSearched(false);
+                fetchBrinquedos("/brinquedos/");
+              }}
+              className="text-xs underline font-bold hover:text-emerald-500 transition-colors"
+            >
+              Ver todos os brinquedos
+            </button>
+          </div>
+        )}
+
+        {/* Brinquedos List or Unsearched Prompt */}
         {loading ? (
           <div className="grid gap-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-20 rounded-2xl bg-muted animate-pulse" />
             ))}
           </div>
+        ) : viewMode === "disponibilidade" && !hasSearched ? (
+          <Card className="p-8 sm:p-12 text-center border-dashed">
+            <Clock className="h-12 w-12 text-indigo-500 mx-auto mb-3 opacity-60" />
+            <h3 className="text-base sm:text-lg font-bold text-foreground">
+              Consulte a disponibilidade por período
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+              Defina a data e horário de início e fim no formulário acima e toque em <strong>Consultar</strong> para verificar quais brinquedos estão livres para locação.
+            </p>
+          </Card>
         ) : brinquedos.length > 0 ? (
           <div className="grid gap-3">
             {brinquedos.map((item) => (
@@ -279,7 +387,7 @@ export default function BrinquedosPage() {
               >
                 <CardContent className="p-4 sm:p-5 flex justify-between items-center">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600/10 text-indigo-500 border border-indigo-500/20">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600/10 text-indigo-500 border border-indigo-500/20 shrink-0">
                       <Castle className="h-6 w-6" />
                     </div>
                     <div>
@@ -307,7 +415,7 @@ export default function BrinquedosPage() {
                       setBrinquedoToDelete(item);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="h-10 w-10 text-destructive hover:bg-destructive/10 rounded-xl"
+                    className="h-10 w-10 text-destructive hover:bg-destructive/10 rounded-xl shrink-0"
                     title="Remover brinquedo"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -320,11 +428,11 @@ export default function BrinquedosPage() {
           <Card className="p-12 text-center border-dashed">
             <Castle className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-40" />
             <h3 className="text-base font-bold text-foreground">
-              Nenhum brinquedo encontrado
+              Nenhum brinquedo disponível
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
               {viewMode === "disponibilidade"
-                ? "Nenhum item livre para o período selecionado."
+                ? "Todos os brinquedos cadastrados já estão locados ou inativos para o período selecionado."
                 : "Cadastre seu primeiro brinquedo para iniciar."}
             </p>
           </Card>

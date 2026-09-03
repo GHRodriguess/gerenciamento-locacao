@@ -187,16 +187,19 @@ export default function HomePage() {
                     onClick={() => openDetails(loc)}
                     className="cursor-pointer hover:border-primary/50 transition-all group overflow-hidden"
                   >
-                    <CardContent className="p-5 flex justify-between items-center">
-                      <div className="space-y-1.5 flex-1 pr-4">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="info">
+                    <CardContent className="p-4 sm:p-5 flex justify-between items-center gap-3">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Badge variant="info" className="shrink-0 whitespace-nowrap">
                             {new Date(loc.data_montagem).toLocaleDateString(
                               "pt-BR",
                               { day: "2-digit", month: "short" }
                             )}
                           </Badge>
-                          <span className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
+                          <span
+                            title={loc.cliente.nome}
+                            className="font-bold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors truncate"
+                          >
                             {loc.cliente.nome}
                           </span>
                         </div>
@@ -210,8 +213,8 @@ export default function HomePage() {
                           )}
                         </p>
                         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                          <Clock className="h-3 w-3 text-indigo-500" />
-                          <span>
+                          <Clock className="h-3 w-3 text-indigo-500 shrink-0" />
+                          <span className="truncate">
                             {new Date(loc.data_montagem).toLocaleTimeString(
                               "pt-BR",
                               { hour: "2-digit", minute: "2-digit" }
@@ -225,8 +228,8 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-emerald-500 text-lg">
+                      <div className="text-right shrink-0">
+                        <span className="font-mono font-bold text-emerald-500 text-base sm:text-lg whitespace-nowrap">
                           {formatCurrency(loc.valor_total)}
                         </span>
                       </div>
@@ -526,11 +529,14 @@ export default function HomePage() {
                   }}
                   className="p-4 bg-muted/40 border border-border/60 rounded-2xl hover:border-primary transition-all cursor-pointer space-y-2"
                 >
-                  <div className="flex justify-between items-start">
-                    <p className="font-bold text-sm text-foreground">
+                  <div className="flex justify-between items-start gap-2">
+                    <p
+                      title={loc.cliente.nome}
+                      className="font-bold text-sm text-foreground truncate min-w-0 flex-1"
+                    >
                       {loc.cliente.nome}
                     </p>
-                    <span className="font-mono text-xs font-bold text-emerald-500">
+                    <span className="font-mono text-xs font-bold text-emerald-500 shrink-0 whitespace-nowrap">
                       {formatCurrency(loc.valor_total)}
                     </span>
                   </div>

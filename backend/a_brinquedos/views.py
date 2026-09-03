@@ -49,8 +49,8 @@ class BrinquedoViewSet(viewsets.ModelViewSet):
         params = PeriodoDisponibilidadeSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         
-        inicio = request.query_params.get('inicio')
-        fim = request.query_params.get('fim')
+        inicio = params.validated_data['inicio']
+        fim = params.validated_data['fim']
 
         brinquedos_indisponiveis = Brinquedo.objects.filter(
             itemlocacao__locacao__cancelada=False,
