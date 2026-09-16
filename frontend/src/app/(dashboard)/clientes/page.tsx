@@ -201,7 +201,7 @@ export default function ClientesPage() {
           <Button
             variant="indigo"
             onClick={() => handleOpenModal()}
-            className="rounded-2xl h-11 px-6 font-bold"
+            className="rounded-2xl h-11 px-6 font-bold active:scale-95 transition-transform"
           >
             <Plus className="h-4 w-4 mr-1.5" /> Novo Cliente
           </Button>
@@ -216,10 +216,11 @@ export default function ClientesPage() {
           </div>
         ) : clientesFiltrados.length > 0 ? (
           <div className="grid gap-3">
-            {clientesFiltrados.map((cliente) => (
+            {clientesFiltrados.map((cliente, idx) => (
               <Card
                 key={cliente.id}
-                className="hover:border-primary/40 transition-all overflow-hidden"
+                className="hover:border-primary/40 active:scale-[0.99] transition-all duration-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2"
+                style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
               >
                 <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1">
@@ -244,7 +245,7 @@ export default function ClientesPage() {
                         href={`https://wa.me/55${cliente.numero_celular.replace(/\D/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-colors"
+                        className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 active:scale-90 transition-all"
                         title="Enviar mensagem no WhatsApp"
                       >
                         <MessageCircle className="h-4 w-4" />
@@ -254,7 +255,7 @@ export default function ClientesPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleOpenModal(cliente)}
-                      className="h-10 w-10 text-amber-500 hover:bg-amber-500/10 rounded-xl"
+                      className="h-10 w-10 text-indigo-500 hover:bg-indigo-500/10 active:scale-90 rounded-xl transition-transform"
                       title="Editar cliente"
                     >
                       <Pencil className="h-4 w-4" />
@@ -262,8 +263,12 @@ export default function ClientesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => openDeleteModal(cliente)}
-                      className="h-10 w-10 text-destructive hover:bg-destructive/10 rounded-xl"
+                      onClick={() => {
+                        setClientToDelete(cliente);
+                        setDeleteError("");
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="h-10 w-10 text-destructive hover:bg-destructive/10 active:scale-90 rounded-xl transition-transform"
                       title="Remover cliente"
                     >
                       <Trash2 className="h-4 w-4" />
