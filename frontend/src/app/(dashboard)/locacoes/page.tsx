@@ -506,7 +506,7 @@ export default function LocacoesPage() {
           <div className="flex items-center gap-1 sm:gap-1.5 p-1.5 bg-muted/60 border border-border/70 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar">
             <button
               onClick={() => setView("futuras")}
-              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "futuras"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -516,7 +516,7 @@ export default function LocacoesPage() {
             </button>
             <button
               onClick={() => setView("ativas")}
-              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "ativas"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -526,7 +526,7 @@ export default function LocacoesPage() {
             </button>
             <button
               onClick={() => setView("sem_endereco")}
-              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "sem_endereco"
                   ? "bg-amber-500 text-white shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -536,7 +536,7 @@ export default function LocacoesPage() {
             </button>
             <button
               onClick={() => setView("canceladas")}
-              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 view === "canceladas"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -549,7 +549,7 @@ export default function LocacoesPage() {
           <Button
             variant="indigo"
             onClick={() => handleOpenModal()}
-            className="rounded-2xl h-11 px-6 font-bold shadow-md"
+            className="rounded-2xl h-11 px-6 font-bold shadow-md active:scale-95 transition-transform"
           >
             <Plus className="h-4 w-4 mr-1.5" /> Nova Locação
           </Button>
@@ -564,10 +564,11 @@ export default function LocacoesPage() {
           </div>
         ) : locacoesExibidas.length > 0 ? (
           <div className="grid gap-4">
-            {locacoesExibidas.map((loc) => (
+            {locacoesExibidas.map((loc, idx) => (
               <Card
                 key={loc.id}
-                className="hover:border-primary/40 transition-all overflow-hidden"
+                className="hover:border-primary/40 active:scale-[0.99] transition-all duration-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2"
+                style={{ animationDelay: `${Math.min(idx * 50, 400)}ms` }}
               >
                 <CardContent className="p-6 flex flex-col md:flex-row justify-between gap-6">
                   {/* Left Column: Details */}

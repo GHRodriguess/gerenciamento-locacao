@@ -225,7 +225,7 @@ export default function BrinquedosPage() {
                 setDateError("");
                 fetchBrinquedos("/brinquedos/");
               }}
-              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${
+              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 ${
                 viewMode === "todos"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -239,7 +239,7 @@ export default function BrinquedosPage() {
                 setHasSearched(false);
                 setDateError("");
               }}
-              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${
+              className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 ${
                 viewMode === "disponibilidade"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -252,7 +252,7 @@ export default function BrinquedosPage() {
           <Button
             variant="indigo"
             onClick={() => setIsModalOpen(true)}
-            className="rounded-2xl h-11 px-6 font-bold shadow-md"
+            className="rounded-2xl h-11 px-6 font-bold shadow-md active:scale-95 transition-transform"
           >
             <Plus className="h-4 w-4 mr-1.5" /> Novo Brinquedo
           </Button>
@@ -380,10 +380,11 @@ export default function BrinquedosPage() {
           </Card>
         ) : brinquedos.length > 0 ? (
           <div className="grid gap-3">
-            {brinquedos.map((item) => (
+            {brinquedos.map((item, idx) => (
               <Card
                 key={item.id}
-                className="hover:border-primary/40 transition-all overflow-hidden"
+                className="hover:border-primary/40 active:scale-[0.99] transition-all duration-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2"
+                style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
               >
                 <CardContent className="p-4 sm:p-5 flex justify-between items-center">
                   <div className="flex items-center gap-4">
@@ -415,7 +416,7 @@ export default function BrinquedosPage() {
                       setBrinquedoToDelete(item);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="h-10 w-10 text-destructive hover:bg-destructive/10 rounded-xl shrink-0"
+                    className="h-10 w-10 text-destructive hover:bg-destructive/10 active:scale-90 rounded-xl shrink-0 transition-transform"
                     title="Remover brinquedo"
                   >
                     <Trash2 className="h-4 w-4" />

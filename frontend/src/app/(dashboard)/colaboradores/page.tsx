@@ -183,7 +183,7 @@ export default function ColaboradoresPage() {
           <Button
             variant="indigo"
             onClick={() => setIsModalOpen(true)}
-            className="rounded-2xl h-11 px-6 font-bold shadow-md w-full sm:w-auto"
+            className="rounded-2xl h-11 px-6 font-bold shadow-md w-full sm:w-auto active:scale-95 transition-transform"
           >
             <Plus className="h-4 w-4 mr-1.5" /> Novo Colaborador
           </Button>
@@ -197,10 +197,11 @@ export default function ColaboradoresPage() {
           </div>
         ) : colaboradores.length > 0 ? (
           <div className="grid gap-3">
-            {colaboradores.map((user) => (
+            {colaboradores.map((user, idx) => (
               <Card
                 key={user.id || user.username}
-                className="hover:border-primary/40 transition-all overflow-hidden"
+                className="hover:border-primary/40 active:scale-[0.99] transition-all duration-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2"
+                style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
               >
                 <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex items-center gap-3.5 min-w-0 flex-1 w-full sm:w-auto">
@@ -235,7 +236,7 @@ export default function ColaboradoresPage() {
                       size="sm"
                       disabled={sendingEmailId === user.id}
                       onClick={() => handleEmailResetPassword(user.id)}
-                      className="h-9 px-3 text-amber-500 hover:bg-amber-500/10 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                      className="h-9 px-3 text-amber-500 hover:bg-amber-500/10 active:scale-95 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all"
                       title="Enviar e-mail para redefinição de senha"
                     >
                       {sendingEmailId === user.id ? (
@@ -252,7 +253,7 @@ export default function ColaboradoresPage() {
                         setUserToDelete(user);
                         setIsDeleteModalOpen(true);
                       }}
-                      className="h-9 w-9 text-destructive hover:bg-destructive/10 rounded-xl"
+                      className="h-9 w-9 text-destructive hover:bg-destructive/10 active:scale-90 rounded-xl transition-transform"
                       title="Remover colaborador"
                     >
                       <Trash2 className="h-4 w-4" />

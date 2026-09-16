@@ -189,11 +189,12 @@ export default function HomePage() {
               </div>
             ) : locacoesProximas.length > 0 ? (
               <div className="space-y-3">
-                {locacoesProximas.map((loc) => (
+                {locacoesProximas.map((loc, idx) => (
                   <Card
                     key={loc.id}
                     onClick={() => openDetails(loc)}
-                    className="cursor-pointer hover:border-primary/50 transition-all group overflow-hidden"
+                    className="cursor-pointer hover:border-primary/50 active:scale-[0.98] transition-all duration-200 group overflow-hidden animate-in fade-in slide-in-from-bottom-2"
+                    style={{ animationDelay: `${idx * 60}ms` }}
                   >
                     <CardContent className="p-4 sm:p-5 flex justify-between items-center gap-3">
                       <div className="space-y-1.5 flex-1 min-w-0">
@@ -264,7 +265,7 @@ export default function HomePage() {
                     variant="ghost"
                     size="icon"
                     onClick={() => changeMonth(-1)}
-                    className="h-8 w-8 rounded-lg"
+                    className="h-8 w-8 rounded-lg active:scale-90 transition-transform"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -272,7 +273,7 @@ export default function HomePage() {
                     variant="ghost"
                     size="icon"
                     onClick={() => changeMonth(1)}
-                    className="h-8 w-8 rounded-lg"
+                    className="h-8 w-8 rounded-lg active:scale-90 transition-transform"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
@@ -289,7 +290,10 @@ export default function HomePage() {
                 <div>SÁB</div>
               </div>
 
-              <div className="grid grid-cols-7 text-center gap-1.5">
+              <div
+                key={currentDate.toISOString().slice(0, 7)}
+                className="grid grid-cols-7 text-center gap-1.5 animate-in fade-in duration-300"
+              >
                 {generateCalendarDays().map((dia, i) => {
                   if (dia === null) {
                     return <div key={`empty-${i}`} className="p-3" />;
@@ -324,7 +328,7 @@ export default function HomePage() {
                     <button
                       key={i}
                       onClick={() => handleDiaClick(dia)}
-                      className={`relative py-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-center min-h-[44px]
+                      className={`relative py-3 rounded-2xl text-xs font-semibold transition-all duration-150 active:scale-90 cursor-pointer flex flex-col items-center justify-center min-h-[44px]
                         ${
                           isHoje
                             ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
@@ -405,7 +409,7 @@ export default function HomePage() {
                   href={`https://wa.me/55${selectedLoc.cliente.numero_celular.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-2xl transition-all"
+                  className="flex items-center justify-between bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] border border-emerald-500/30 p-4 rounded-2xl transition-all"
                 >
                   <div className="flex items-center gap-3">
                     <div className="bg-emerald-500 text-white p-2 rounded-xl">
@@ -526,7 +530,7 @@ export default function HomePage() {
                     setIsDayModalOpen(false);
                     openDetails(loc);
                   }}
-                  className="p-4 bg-muted/40 border border-border/60 rounded-2xl hover:border-primary transition-all cursor-pointer space-y-2"
+                  className="p-4 bg-muted/40 border border-border/60 rounded-2xl hover:border-primary active:scale-[0.98] transition-all cursor-pointer space-y-2"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <p
