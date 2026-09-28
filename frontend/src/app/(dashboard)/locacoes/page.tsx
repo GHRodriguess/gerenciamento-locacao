@@ -27,6 +27,7 @@ import {
   ArrowRight,
   ArrowLeft,
   MapPinOff,
+  FileSpreadsheet,
 } from "lucide-react";
 import authFetch from "@/lib/api";
 import { Locacao, Cliente, Brinquedo, LocacaoFormData } from "@/types";
@@ -45,6 +46,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DynamicLocationPickerMap } from "@/components/map/dynamic-location-picker";
 import { RouteButton } from "@/components/map/route-button";
+import { LocacoesSpreadsheet } from "@/components/locacoes/locacoes-spreadsheet";
 import { fetchAddressByCep, geocodeAddress, geocodeFullAddress } from "@/lib/geo";
 import {
   Dialog,
@@ -58,7 +60,8 @@ export default function LocacoesPage() {
   const [locacoes, setLocacoes] = useState<Locacao[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [brinquedos, setBrinquedos] = useState<Brinquedo[]>([]);
-  const [view, setView] = useState<"futuras" | "ativas" | "canceladas" | "sem_endereco">("futuras");
+  const [todosBrinquedos, setTodosBrinquedos] = useState<Brinquedo[]>([]);
+  const [view, setView] = useState<"futuras" | "ativas" | "canceladas" | "sem_endereco" | "planilha">("futuras");
 
   const [step, setStep] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,9 +111,10 @@ export default function LocacoesPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [resLoc, resCli] = await Promise.all([
+      const [resLoc, resCli, resBrinq] = await Promise.all([
         authFetch("/locacoes/todas"),
         authFetch("/clientes/"),
+        authFetch("/brinquedos/"),
       ]);
 
       if (resLoc.ok) {
@@ -129,6 +133,11 @@ export default function LocacoesPage() {
           a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
         );
         setClientes(sortedData);
+      }
+
+      if (resBrinq.ok) {
+        const dataBrinq: Brinquedo[] = await resBrinq.json();
+        setTodosBrinquedos(dataBrinq);
       }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
@@ -500,7 +509,11 @@ export default function LocacoesPage() {
         description="Acompanhe contratos, agende montagens e compartilhe links de confirmação."
       />
 
-      <main className="p-4 sm:p-8 max-w-5xl mx-auto w-full space-y-6 animate-in fade-in duration-300">
+      <main
+        className={`p-4 sm:p-8 ${
+          view === "planilha" ? "max-w-7xl" : "max-w-5xl"
+        } mx-auto w-full space-y-6 animate-in fade-in duration-300 transition-all`}
+      >
         {/* Navigation Tabs and Create Button */}
         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
           <div className="flex items-center gap-1 sm:gap-1.5 p-1.5 bg-muted/60 border border-border/70 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar">
@@ -544,6 +557,16 @@ export default function LocacoesPage() {
             >
               <Trash2 className="h-4 w-4 shrink-0" /> Canceladas
             </button>
+            <button
+              onClick={() => setView("planilha")}
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                view === "planilha"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FileSpreadsheet className="h-4 w-4 shrink-0" /> Planilha & PDF
+            </button>
           </div>
 
           <Button
@@ -555,13 +578,19 @@ export default function LocacoesPage() {
           </Button>
         </div>
 
-        {/* List of Locacoes */}
+        {/* List of Locacoes or Spreadsheet View */}
         {loading ? (
           <div className="grid gap-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-32 rounded-3xl bg-muted animate-pulse" />
             ))}
           </div>
+        ) : view === "planilha" ? (
+          <LocacoesSpreadsheet
+            locacoes={locacoes}
+            brinquedos={todosBrinquedos}
+            onSelectLocacao={(loc) => handleOpenModal(loc)}
+          />
         ) : locacoesExibidas.length > 0 ? (
           <div className="grid gap-4">
             {locacoesExibidas.map((loc, idx) => (
